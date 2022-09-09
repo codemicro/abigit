@@ -1,0 +1,73 @@
+$background-colour: #f3fff2;
+$font-colour: #575761;
+$accent-colour: #8ACB88;
+$theme-bluegrey: #648381;
+$theme-yellow: #FFBF46;
+
+$breakpoint-sm-max: 600px;
+$breakpoint-md-min: 600px;
+$breakpoint-lg-min: 960px;
+$breakpoint-lg-max: 959px;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  color: $font-colour;
+  background-color: $background-colour;
+}
+
+@mixin container {
+  @media only screen and (max-width: $breakpoint-sm-max) {
+    margin-left: 2%;
+    margin-right: 2%;
+  }
+
+  @media only screen and (min-width: $breakpoint-md-min) {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+
+  @media only screen and (min-width: $breakpoint-lg-min) {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
+.container {
+  @include container();
+}
+
+.pt {
+  padding-top: 15px;
+}
+
+.pt-large {
+  padding-top: 50px;
+}
+
+nav.top-nav {
+  $navbar-height: 55px;
+
+  @include container();
+  height: $navbar-height;
+  background: white;
+
+  padding: 10px 5px 10px 5px;
+
+  display: flex;
+  align-items: center;
+
+  border: solid $theme-bluegrey;
+  border-width: 1px 3px 3px 1px;
+
+  h1.name {
+    font-size: $navbar-height - calc($navbar-height * 0.4);
+    padding: 0;
+  }
+}

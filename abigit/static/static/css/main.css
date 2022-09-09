@@ -1,0 +1,73 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  color: #575761;
+  background-color: #f3fff2;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    margin-left: 2%;
+    margin-right: 2%;
+  }
+}
+@media only screen and (min-width: 600px) {
+  .container {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+}
+@media only screen and (min-width: 960px) {
+  .container {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
+.pt {
+  padding-top: 15px;
+}
+
+.pt-large {
+  padding-top: 50px;
+}
+
+nav.top-nav {
+  height: 55px;
+  background: white;
+  padding: 10px 5px 10px 5px;
+  display: flex;
+  align-items: center;
+  border: solid #648381;
+  border-width: 1px 3px 3px 1px;
+}
+@media only screen and (max-width: 600px) {
+  nav.top-nav {
+    margin-left: 2%;
+    margin-right: 2%;
+  }
+}
+@media only screen and (min-width: 600px) {
+  nav.top-nav {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+}
+@media only screen and (min-width: 960px) {
+  nav.top-nav {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+nav.top-nav h1.name {
+  font-size: 33px;
+  padding: 0;
+}
+
+/*# sourceMappingURL=main.css.map */
