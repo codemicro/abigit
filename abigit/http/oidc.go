@@ -1,10 +1,10 @@
-package endpoints
+package http
 
 import (
 	"context"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/db"
-	"github.com/codemicro/abigit/abigit/db/models"
+	"github.com/codemicro/abigit/abigit/models"
 	"github.com/codemicro/abigit/abigit/urls"
 	"github.com/codemicro/abigit/abigit/util"
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +18,7 @@ func (e *Endpoints) authOIDCOutbound(ctx *fiber.Ctx) error {
 		return ctx.Redirect(urls.Index)
 	}
 
-	authState := e.authStates.New("")
+	authState := e.authStates.New(urls.Index)
 
 	return ctx.Redirect(e.oauth2Config.AuthCodeURL(authState.Key))
 }
@@ -83,5 +83,5 @@ func (e *Endpoints) authOIDCInbound(ctx *fiber.Ctx) error {
 		HTTPOnly: true,
 	})
 
-	return ctx.Redirect(urls.Index)
+	return ctx.Redirect(authState.NextURL)
 }

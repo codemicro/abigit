@@ -2,7 +2,6 @@ package util
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -27,7 +26,7 @@ func NewRichErrorFromFiberError(err *fiber.Error, detail any) error {
 }
 
 func (r *RichError) Error() string {
-	return fmt.Sprintf("handler error, %d: %s", r.Status, r.Reason)
+	return r.Reason
 }
 
 func (r *RichError) AsJSON() ([]byte, error) {
@@ -41,6 +40,11 @@ func (r *RichError) AsJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(info)
+}
+
+func IsRichError(err error) bool {
+	_, ok := err.(*RichError)
+	return ok
 }
 
 func JSONErrorHandler(ctx *fiber.Ctx, err error) error {

@@ -1,8 +1,8 @@
-$background-colour: #f3fff2;
-$font-colour: #575761;
-$accent-colour: #8ACB88;
-$theme-bluegrey: #648381;
-$theme-yellow: #FFBF46;
+$background-colour: #f6f4f2;
+$font-colour: #2b161c;
+$accent-colour: #df3062;
+$translucent-accent-colour: rgba(223, 98, 102, 0.2);
+$secondary: rgba(43, 22, 28, 0.5) ;
 
 $breakpoint-sm-max: 600px;
 $breakpoint-md-min: 600px;
@@ -22,6 +22,40 @@ body {
   background-color: $background-colour;
 }
 
+.secondary {
+  font-style: italic;
+  color: $secondary;
+}
+
+a {
+  &:link, &:visited {
+    color: $accent-colour;
+    text-decoration-style: solid;
+  }
+
+  &:hover {
+    color: $accent-colour;
+    filter: brightness(0.8);
+  }
+}
+
+form {
+  display: table;
+
+  div {
+    display: table-row;
+  }
+
+  label, input {
+    display: table-cell;
+    margin-bottom: 10px;
+  }
+
+  label {
+    padding-right: 10px;
+  }
+}
+
 @mixin container {
   @media only screen and (max-width: $breakpoint-sm-max) {
     margin-left: 2%;
@@ -37,6 +71,12 @@ body {
     margin-left: 25%;
     margin-right: 25%;
   }
+}
+
+@mixin card() {
+  padding: 15px 10px 15px 10px;
+  border: solid $accent-colour;
+  border-width: 1px 3px 3px 1px;
 }
 
 .container {
@@ -55,16 +95,17 @@ nav.top-nav {
   $navbar-height: 55px;
 
   @include container();
+  @include card();
+
   height: $navbar-height;
   background: white;
-
-  padding: 10px 5px 10px 5px;
 
   display: flex;
   align-items: center;
 
-  border: solid $theme-bluegrey;
-  border-width: 1px 3px 3px 1px;
+  :first-child {
+    flex: 1 1 0;
+  }
 
   h1.name {
     font-size: $navbar-height - calc($navbar-height * 0.4);

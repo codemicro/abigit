@@ -9,10 +9,19 @@ import (
 const (
 	Index = "/"
 
-	Auth             = "/auth"
+	Auth = "/auth"
+
+	AuthLogin = Auth + "/login"
+
 	AuthOIDC         = Auth + "/oidc"
 	AuthOIDCInbound  = AuthOIDC + "/inbound"
 	AuthOIDCOutbound = AuthOIDC + "/outbound"
+
+	CreateRepository           = "/create"
+	CreateRepositoryValidation = "/create/validate"
+
+	Repositories     = "/~"
+	RepositoryByName = "/~/:slug"
 )
 
 func Make(template string, replacements ...interface{}) string {

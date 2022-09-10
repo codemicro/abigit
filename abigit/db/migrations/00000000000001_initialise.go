@@ -2,7 +2,7 @@ package migrations
 
 import (
 	"context"
-	"github.com/codemicro/abigit/abigit/db/models"
+	"github.com/codemicro/abigit/abigit/models"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun"
 )

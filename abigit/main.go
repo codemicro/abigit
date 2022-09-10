@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/db"
-	"github.com/codemicro/abigit/abigit/endpoints"
+	"github.com/codemicro/abigit/abigit/http"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"strconv"
@@ -20,7 +20,7 @@ func run() error {
 		return errors.Wrap(err, "failed migration")
 	}
 
-	e, err := endpoints.New(database)
+	e, err := http.New(database)
 	if err != nil {
 		return errors.WithStack(err)
 	}

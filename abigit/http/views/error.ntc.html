@@ -1,0 +1,35 @@
+{{ import "fmt" }}
+{{ import "github.com/codemicro/abigit/abigit/urls" }}
+
+{{ code }}
+type ErrorProps struct {
+    StatusCode int
+    ExtraInformation string
+}
+{{ endcode }}
+
+{{ func Error(ctx *RenderContext, props *ErrorProps) }}
+
+    {{ code }}
+        ctx.pageTitle = fmt.Sprintf("%d %s | %s", props.StatusCode, statusMessages[props.StatusCode], ctx.platformName)
+        ctx.reducedContent = true
+    {{ endcode }}
+
+    {[ PageBegin(ctx) ]}
+    {[ Navbar(ctx) ]}
+
+    <div class="container">
+        <h3>{[ props.StatusCode ]} {[ statusMessages[props.StatusCode] ]}</h3>
+
+        {{ if props.ExtraInformation != "" }}
+            <p>{[ props.ExtraInformation ]}</p>
+        {{ endif }}
+
+        {{ if props.StatusCode == 401 }}
+            <a href="{[ urls.Make(urls.AuthLogin) ]}">Click here to login.</a>
+        {{ endif }}
+    </div>
+
+    {[ PageEnd(ctx) ]}
+
+{{ endfunc }}

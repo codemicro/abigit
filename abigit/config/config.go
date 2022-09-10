@@ -67,6 +67,12 @@ var OIDC = struct {
 	Issuer:       asString(required("oidc.issuer")),
 }
 
+var Platform = struct {
+	Name string
+}{
+	Name: asString(withDefault("platform.name", "AbiGit")),
+}
+
 var Git = struct {
 	RepositoriesPath string
 }{

@@ -2,7 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"github.com/codemicro/abigit/abigit/db/models"
+	"github.com/bwmarrin/snowflake"
+	"github.com/codemicro/abigit/abigit/models"
 	"github.com/codemicro/abigit/abigit/util"
 	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
@@ -34,6 +35,21 @@ func (db *DB) RegisterUser(user *models.User) error {
 	}
 
 	return nil
+}
+
+func (db *DB) GetUserByID(id snowflake.ID) (*models.User, error) {
+	ctx, cancel := db.newContext()
+	defer cancel()
+
+	o := new(models.User)
+	if err := db.bun.NewSelect().Model(o).Where("id = ?", id).Scan(ctx, o); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, errors.WithStack(err)
+	}
+
+	return o, nil
 }
 
 func (db *DB) GetUserByExternalID(extern string) (*models.User, error) {

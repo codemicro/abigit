@@ -1,0 +1,45 @@
+{{ import "github.com/codemicro/abigit/abigit/urls" }}
+
+{{ code }}
+type CreateRepositoryProps struct {
+    Problem string
+}
+{{ endcode }}
+
+{{ func CreateRepository(ctx *RenderContext, props *CreateRepositoryProps) }}
+
+    {{ code }}
+        pageTitle := "Create a new repository"
+        ctx.pageTitle = pageTitle + " | " + ctx.platformName
+    {{ endcode }}
+
+    {[ PageBegin(ctx) ]}
+    {[ Navbar(ctx) ]}
+
+    <div class="container">
+        <h3>{[ pageTitle ]}</h3>
+
+        {{ if props.Problem != "" }}
+            {[ ProblemBox(props.Problem) ]}
+        {{ endif }}
+
+        <form action="" method="post">
+            <div>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" required
+                    hx-post="{[ urls.Make(urls.CreateRepositoryValidation) ]}"
+                    hx-trigger="keyup changed delay:250ms"
+                    hx-target="#validation-output"
+                >
+                <span style="padding-left: 10px; font-style: italic;" id="validation-output"></span>
+            </div>
+            <div>
+                <input type="submit" value="Create">
+            </div>
+        </form>
+
+    </div>
+
+    {[ PageEnd(ctx) ]}
+
+{{ endfunc }}

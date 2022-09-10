@@ -1,0 +1,35 @@
+{{ import "github.com/codemicro/abigit/abigit/core" }}
+
+{{ code }}
+type IndexProps struct {
+    AllRepos []*core.RepoOnDisk
+}
+{{ endcode }}
+
+{{ func Index(ctx *RenderContext, props *IndexProps) }}
+
+    {{ code }}
+        ctx.pageTitle = "Welcome to " + ctx.platformName
+    {{ endcode }}
+
+    {[ PageBegin(ctx) ]}
+    {[ Navbar(ctx) ]}
+
+    <div class="container">
+        <h3>Recently updated</h3>
+
+        <h3>All repositories</h3>
+
+        {{ if len(props.AllRepos) == 0 }}
+            <p class="secondary">Nothing to see here!</p>
+        {{ else }}
+            {{ for _, repo := range props.AllRepos }}
+            <p>{[ repo.Slug ]} - {[ repo.Description ]} - {[ repo.Path ]}</p>
+            {{ endfor }}
+        {{ endif }}
+
+    </div>
+
+    {[ PageEnd(ctx) ]}
+
+{{ endfunc }}

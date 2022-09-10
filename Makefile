@@ -1,7 +1,7 @@
 .PHONY: dev
 
 dev:
-	sass burntPocket/static/static/css
+	sass abigit/static/static/css
 	go generate ./...
 	mkdir -p run
-	cd run && go run ../burntPocket
+	cd run && go run ../abigit

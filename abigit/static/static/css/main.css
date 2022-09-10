@@ -7,8 +7,36 @@
 body {
   margin: 0;
   font-family: sans-serif;
-  color: #575761;
-  background-color: #f3fff2;
+  color: #2b161c;
+  background-color: #f6f4f2;
+}
+
+.secondary {
+  font-style: italic;
+  color: rgba(43, 22, 28, 0.5);
+}
+
+a:link, a:visited {
+  color: #df3062;
+  text-decoration-style: solid;
+}
+a:hover {
+  color: #df3062;
+  filter: brightness(0.8);
+}
+
+form {
+  display: table;
+}
+form div {
+  display: table-row;
+}
+form label, form input {
+  display: table-cell;
+  margin-bottom: 10px;
+}
+form label {
+  padding-right: 10px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -39,13 +67,13 @@ body {
 }
 
 nav.top-nav {
+  padding: 15px 10px 15px 10px;
+  border: solid #df3062;
+  border-width: 1px 3px 3px 1px;
   height: 55px;
   background: white;
-  padding: 10px 5px 10px 5px;
   display: flex;
   align-items: center;
-  border: solid #648381;
-  border-width: 1px 3px 3px 1px;
 }
 @media only screen and (max-width: 600px) {
   nav.top-nav {
@@ -64,6 +92,9 @@ nav.top-nav {
     margin-left: 25%;
     margin-right: 25%;
   }
+}
+nav.top-nav :first-child {
+  flex: 1 1 0;
 }
 nav.top-nav h1.name {
   font-size: 33px;

@@ -1,4 +1,4 @@
-package endpoints
+package http
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/db"
+	"github.com/codemicro/abigit/abigit/http/views"
+	"github.com/codemicro/abigit/abigit/models"
 	"github.com/codemicro/abigit/abigit/static"
 	"github.com/codemicro/abigit/abigit/urls"
 	"github.com/codemicro/abigit/abigit/util"
@@ -71,18 +73,62 @@ func New(dbi *db.DB) (*Endpoints, error) {
 
 func (e *Endpoints) SetupApp() *fiber.App {
 	app := fiber.New(fiber.Config{
-		ErrorHandler:          util.JSONErrorHandler,
+		ErrorHandler:          htmlErrorHandler,
 		DisableStartupMessage: !config.Debug.Enabled,
 	})
 
 	app.Get(urls.Index, e.Index)
 
+	app.Get(urls.AuthLogin, func(ctx *fiber.Ctx) error {
+		return ctx.Redirect(urls.AuthOIDCOutbound)
+	})
+
+	app.Get(urls.Repositories, func(ctx *fiber.Ctx) error {
+		return ctx.Redirect(urls.Index)
+	})
+
 	app.Get(urls.AuthOIDCOutbound, e.authOIDCOutbound)
 	app.Get(urls.AuthOIDCInbound, e.authOIDCInbound)
+
+	app.Get(urls.CreateRepository, e.createRepository)
+	app.Post(urls.CreateRepository, e.createRepository)
+	app.Post(urls.CreateRepositoryValidation, e.createRepositoryValidation)
 
 	app.Use("/", static.NewHandler())
 
 	return app
+}
+
+func htmlErrorHandler(ctx *fiber.Ctx, err error) error {
+	causeErr := errors.Cause(err) // if an error has been wrapped with a stacktrace, it'll mess up this matching below
+	var re *util.RichError
+	if e, ok := causeErr.(*fiber.Error); ok {
+		re = util.NewRichErrorFromFiberError(e, nil).(*util.RichError)
+	} else if e, ok := causeErr.(*util.RichError); ok {
+		re = e
+	} else {
+		log.Error().Stack().Err(err).Str("location", "fiber error handler").Str("route", ctx.OriginalURL()).Send()
+		re = util.NewRichErrorFromFiberError(fiber.ErrInternalServerError, nil).(*util.RichError)
+	}
+
+	extraInformation := re.Reason
+	if x, ok := re.Detail.(string); ok {
+		extraInformation = x
+	}
+
+	errorProps := &views.ErrorProps{
+		StatusCode:       re.Status,
+		ExtraInformation: extraInformation,
+	}
+
+	ctx.Status(re.Status)
+	return views.SendPage(
+		ctx,
+		views.Error(
+			views.NewRenderContext(nil),
+			errorProps,
+		),
+	)
 }
 
 func (e *Endpoints) generateSessionToken(userID snowflake.ID) string {
@@ -133,4 +179,19 @@ func (e *Endpoints) getSessionInformation(ctx *fiber.Ctx) *sessionInfo {
 	}
 
 	return si
+}
+
+func (e *Endpoints) newRenderContext(ctx *fiber.Ctx) (*views.RenderContext, error) {
+	var user *models.User
+
+	si := e.getSessionInformation(ctx)
+	if si != nil {
+		var err error
+		user, err = e.db.GetUserByID(si.ID)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+	}
+
+	return views.NewRenderContext(user), nil
 }

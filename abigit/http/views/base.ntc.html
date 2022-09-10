@@ -1,0 +1,42 @@
+{{ import "github.com/codemicro/abigit/abigit/urls" }}
+
+{{ func PageBegin(ctx *RenderContext) }}
+    <!DOCTYPE html>
+    <html lang="en">
+    {[ Head(ctx) ]}
+    <body>
+{{ endfunc }}
+
+{{ func PageEnd(ctx *RenderContext) }}
+    </body>
+    </html>
+{{ endfunc }}
+
+{{ func Head(ctx *RenderContext) }}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{[ ctx.pageTitle ]}</title>
+        <link rel="stylesheet" href="{[ urls.Make(`/css/main.css`) ]}">
+        <script src="{[ urls.Make(`/js/htmx.min.js`) ]}"></script>
+    </head>
+{{ endfunc }}
+
+{{ func Navbar(ctx *RenderContext) }}
+    <div class="pt"></div>
+    <nav class="top-nav">
+        <h1 class="name">{[ ctx.platformName ]}</h1>
+
+        {{ if !ctx.reducedContent }}
+            {{ if ctx.isAuthed() }}
+                <a href="{[ urls.Make(urls.CreateRepository) ]}">New repository</a>
+            {{ else }}
+                <a href="{[ urls.Make(urls.AuthLogin) ]}">Login</a>
+            {{ endif }}
+        {{ endif }}
+    </nav>
+{{ endfunc }}
+
+{{ func ProblemBox(problem string) }}
+    <p style="color: red">{[ problem ]}</p>
+{{ endfunc }}
