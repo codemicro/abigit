@@ -94,6 +94,12 @@ func (e *Endpoints) SetupApp() *fiber.App {
 	app.Post(urls.CreateRepository, e.createRepository)
 	app.Post(urls.CreateRepositoryValidation, e.createRepositoryValidation)
 
+	app.Use(urls.GitRepositoryByName, e.serveRepository)
+
+	app.Get(urls.RepositoryByName, func(ctx *fiber.Ctx) error {
+		return ctx.SendString(ctx.Params("slug"))
+	})
+
 	app.Use("/", static.NewHandler())
 
 	return app

@@ -20,11 +20,16 @@ const (
 	CreateRepository           = "/create"
 	CreateRepositoryValidation = "/create/validate"
 
-	Repositories     = "/~"
-	RepositoryByName = "/~/:slug"
+	Repositories        = "/~"
+	RepositoryByName    = Repositories + "/:slug"
+	GitRepositoryByName = Repositories + "/:slug"
 )
 
 func Make(template string, replacements ...interface{}) string {
+	return config.HTTP.ExternalURL + MakeRelative(template, replacements...)
+}
+
+func MakeRelative(template string, replacements ...any) string {
 	spt := strings.Split(template, "/")
 	for i, part := range spt {
 		if len(part) == 0 {
@@ -34,5 +39,5 @@ func Make(template string, replacements ...interface{}) string {
 			spt[i] = "%s"
 		}
 	}
-	return config.HTTP.ExternalURL + fmt.Sprintf(strings.Join(spt, "/"), replacements...)
+	return fmt.Sprintf(strings.Join(spt, "/"), replacements...)
 }
