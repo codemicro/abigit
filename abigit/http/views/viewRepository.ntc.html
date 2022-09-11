@@ -1,0 +1,124 @@
+{{ import "github.com/codemicro/abigit/abigit/core" }}
+{{ import "github.com/codemicro/abigit/abigit/urls" }}
+
+{{ code }}
+type ViewRepositoryProps struct {
+    Repo *core.RepoOnDisk
+    IsEmpty bool
+}
+{{ endcode }}
+
+{{ func ViewRepository(ctx *RenderContext, props *ViewRepositoryProps) }}
+
+    {{ code }}
+        ctx.pageTitle = props.Repo.Slug + " | " + ctx.platformName
+    {{ endcode }}
+
+    {[ PageBegin(ctx) ]}
+    {[ Navbar(ctx) ]}
+
+    <div class="container">
+        <h1>{[ props.Repo.Slug ]}</h1>
+        <p class="secondary">{[ props.Repo.Description ]}</p>
+        <p>Size on disk: {[ formatFileSize(props.Repo.Size) ]}</p>
+
+        \{{ if props.IsEmpty \}}
+        {{ if true == false }}
+            <div class="card full-width">
+                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>
+            </div>
+        {{ else }}
+            <div id="tabs" class="tabs"
+                 hx-get="{[ urls.Make(urls.RepositoryTabs, props.Repo.Slug) ]}"
+                 hx-trigger="load"
+                 hx-target="#tabs"
+                 hx-swap="innerHTML"
+            ></div>
+        {{ endif }}
+    </div>
+
+    {[ PageEnd(ctx) ]}
+
+{{ endfunc }}
+
+{{ code }}
+    const (
+        TabSelectorReadme = 1 << iota
+        TabSelectorShowTree
+        TabSelectorShowRefs
+    )
+
+    type RepositoryTabProps struct {
+        Repo *core.RepoOnDisk
+        ShowTabs int
+        CurrentTab int
+    }
+{{ endcode }}
+
+{{ func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) }}
+
+    {{ code }}
+        selectedTab := props.CurrentTab
+
+        if props.ShowTabs & selectedTab == 0 {
+            for selectedTab & 0b1 == 0 {
+                if selectedTab == 0 {
+                    break
+                }
+
+                selectedTab = selectedTab >> 1
+            }
+        }
+    {{ endcode }}
+
+    <div class="tab-list">
+
+        {{ if props.ShowTabs & TabSelectorReadme != 0 }}
+            <a hx-get="{[ urls.Make(urls.RepositoryTabReadme, props.Repo.Slug) ]}"
+                {{ if selectedTab == TabSelectorReadme }}
+                     class="selected"
+                {{ endif }}
+            >README</a>
+        {{ endif }}
+
+        {{ if props.ShowTabs & TabSelectorShowTree != 0 }}
+            <a hx-get="{[ urls.Make(urls.RepositoryTabTree, props.Repo.Slug) ]}"
+                {{ if selectedTab == TabSelectorShowTree }}
+                    class="selected"
+                {{ endif }}
+            >Tree</a>
+        {{ endif }}
+
+        {{ if props.ShowTabs & TabSelectorShowRefs != 0 }}
+            <a hx-get="{[ urls.Make(urls.RepositoryTabRefs, props.Repo.Slug) ]}"
+                {{ if selectedTab == TabSelectorShowRefs }}
+                    class="selected"
+                {{ endif }}
+            >Refs</a>
+        {{ endif }}
+
+    </div>
+
+    <div class="tab-content">
+        {{ if selectedTab == TabSelectorReadme }}
+            {[ repositoryTabReadme(ctx, props) ]}
+        {{ elif selectedTab == TabSelectorShowTree }}
+            {[ repositoryTabTree(ctx, props) ]}
+        {{ elif selectedTab == TabSelectorShowRefs }}
+            {[ repositoryTabRefs(ctx, props) ]}
+        {{ endif }}
+    </div>
+
+{{ endfunc }}
+
+{{ func repositoryTabReadme(ctx *RenderContext, props *RepositoryTabProps) }}
+    <p>TODO: README.md file here</p>
+{{ endfunc }}
+
+{{ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) }}
+    <p>TODO: tree here</p>
+{{ endfunc }}
+
+{{ func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) }}
+    <p>TODO: refs here</p>
+{{ endfunc }}

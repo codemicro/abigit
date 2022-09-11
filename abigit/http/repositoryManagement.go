@@ -7,6 +7,7 @@ import (
 	"github.com/codemicro/abigit/abigit/http/views"
 	"github.com/codemicro/abigit/abigit/urls"
 	"github.com/codemicro/abigit/abigit/util"
+	gogit "github.com/go-git/go-git/v5"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
 	"github.com/pkg/errors"
@@ -95,9 +96,9 @@ func (e *Endpoints) serveRepository(ctx *fiber.Ctx) error {
 	prefix := urls.MakeRelative(ctx.Route().Path, repositorySlug)
 	repositorySlug = repositorySlug[:len(repositorySlug)-4] // remove ".git"
 
-	if calcSlug := slug.Make(repositorySlug); repositorySlug != calcSlug {
+	if !core.ValidateSlug(repositorySlug) {
 		// this means something problematic is going on, like an attempted path traversal
-		logger.Debug().Msgf("slugs don't match: %s != %s", repositorySlug, calcSlug)
+		logger.Debug().Msgf("slugs don't match")
 		return fiber.ErrBadRequest
 	}
 
@@ -151,4 +152,98 @@ func (e *Endpoints) serveRepository(ctx *fiber.Ctx) error {
 	}
 
 	return nil
+}
+
+func (e *Endpoints) displayRepository(ctx *fiber.Ctx) error {
+	repoSlug := ctx.Params("slug")
+	if repoSlug == "" || !core.ValidateSlug(repoSlug) {
+		return fiber.ErrBadRequest
+	}
+
+	repoInfo, err := core.GetRepository(repoSlug)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	repo, err := gogit.PlainOpen(repoInfo.Path)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	//refIter, err := repo.References()
+	//if err != nil {
+	//	return errors.WithStack(err)
+	//}
+	//defer refIter.Close()
+
+	//var refs []*plumbing.Reference
+	//
+	//if err := refIter.ForEach(func(ref *plumbing.Reference) error {
+	//	fmt.Println(ref.Name(), ref.Type(), ref.Hash().String(), ref.Hash().IsZero())
+	//	refs = append(refs, ref)
+	//	return nil
+	//}); err != nil {
+	//	return errors.WithStack(err)
+	//}
+
+	isEmpty, err := core.IsRepositoryEmpty(repo)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	rctx, err := e.newRenderContext(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return views.SendPage(
+		ctx,
+		views.ViewRepository(rctx, &views.ViewRepositoryProps{
+			Repo:    repoInfo,
+			IsEmpty: isEmpty,
+		}),
+	)
+}
+
+func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
+	repoSlug := ctx.Params("slug")
+	if repoSlug == "" || !core.ValidateSlug(repoSlug) {
+		return fiber.ErrBadRequest
+	}
+
+	repoInfo, err := core.GetRepository(repoSlug)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	//repo, err := gogit.PlainOpen(repoInfo.Path)
+	//if err != nil {
+	//	return errors.WithStack(err)
+	//}
+
+	props := &views.RepositoryTabProps{
+		Repo:     repoInfo,
+		ShowTabs: views.TabSelectorReadme | views.TabSelectorShowTree | views.TabSelectorShowRefs,
+	}
+
+	switch strings.ToLower(ctx.Query("tab", "readme")) {
+	case "tree":
+		props.CurrentTab = views.TabSelectorShowTree
+	case "refs":
+		props.CurrentTab = views.TabSelectorShowRefs
+	case "readme":
+		fallthrough
+	default:
+		props.CurrentTab = views.TabSelectorReadme
+	}
+
+	rctx, err := e.newRenderContext(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return views.SendPage(
+		ctx,
+		views.RepositoryTabs(rctx, props),
+	)
 }

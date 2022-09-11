@@ -50,7 +50,7 @@ func Navbar(ctx *RenderContext) string {
 		}
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n    </nav>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    </nav>\n    <div class=\"pt\"></div>\n")
 	return ntcRijqFUuoGg.String()
 }
 func ProblemBox(problem string) string {

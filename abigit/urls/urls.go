@@ -20,9 +20,14 @@ const (
 	CreateRepository           = "/create"
 	CreateRepositoryValidation = "/create/validate"
 
-	Repositories        = "/~"
-	RepositoryByName    = Repositories + "/:slug"
-	GitRepositoryByName = Repositories + "/:slug"
+	Repositories          = "/~"
+	RepositoryByName      = Repositories + "/:slug"
+	ServeRepositoryByName = Repositories + "/:slug"
+
+	RepositoryTabs      = RepositoryByName + "/tab"
+	RepositoryTabReadme = RepositoryTabs + "/?tab=readme"
+	RepositoryTabTree   = RepositoryTabs + "/?tab=tree"
+	RepositoryTabRefs   = RepositoryTabs + "/?tab=refs"
 )
 
 func Make(template string, replacements ...interface{}) string {

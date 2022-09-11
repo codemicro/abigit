@@ -1,7 +1,7 @@
 $background-colour: #f6f4f2;
 $font-colour: #2b161c;
 $accent-colour: #df3062;
-$translucent-accent-colour: rgba(223, 98, 102, 0.2);
+$weak-accent-colour: #f2d6d6;
 $secondary: rgba(43, 22, 28, 0.5) ;
 
 $breakpoint-sm-max: 600px;
@@ -20,6 +20,17 @@ body {
   font-family: sans-serif;
   color: $font-colour;
   background-color: $background-colour;
+}
+
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.0;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 .secondary {
@@ -73,10 +84,27 @@ form {
   }
 }
 
-@mixin card() {
+@mixin box-padding() {
   padding: 15px 10px 15px 10px;
-  border: solid $accent-colour;
-  border-width: 1px 3px 3px 1px;
+}
+
+$border-thin: 1px;
+$border-thick: 3px;
+
+@mixin card() {
+  border: $border-thin solid $accent-colour;
+  box-shadow: $border-thick $border-thick 0 $accent-colour;
+  // border-width: $border-thin $border-thick $border-thick $border-thin;
+  background: white;
+}
+
+.card {
+  @include card();
+  @include box-padding();
+
+  &.full-width {
+    width: 100%;
+  }
 }
 
 .container {
@@ -96,9 +124,9 @@ nav.top-nav {
 
   @include container();
   @include card();
+  @include box-padding();
 
   height: $navbar-height;
-  background: white;
 
   display: flex;
   align-items: center;
@@ -110,5 +138,39 @@ nav.top-nav {
   h1.name {
     font-size: $navbar-height - calc($navbar-height * 0.4);
     padding: 0;
+  }
+}
+
+div.tabs {
+
+  .tab-list {
+    display: flex;
+
+    & > a {
+      @include card();
+      margin-left: 0;
+      padding: 7px 8px;
+
+      &.selected {
+        background-color: $weak-accent-colour;
+        color: $accent-colour;
+      }
+
+      &:not(:last-child) {
+        border-right: 0;
+
+        &:hover {
+          box-shadow: unset;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    @include card();
+    @include box-padding();
+
+    position: relative;
+    top: -$border-thick;
   }
 }

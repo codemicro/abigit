@@ -4,6 +4,7 @@ import (
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/models"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 //go:generate neontc --extension ntc.html
@@ -42,6 +43,27 @@ func (rctx *RenderContext) isAuthed() bool {
 func SendPage(ctx *fiber.Ctx, content string) error {
 	ctx.Type("html")
 	return ctx.SendString(content)
+}
+
+func formatFileSize(s int64) string {
+	unit := "B"
+
+	c := float64(s)
+	for _, item := range []string{"KB", "MB", "GB"} {
+		if c >= 1000 {
+			c /= 1000
+			unit = item
+		} else {
+			break
+		}
+	}
+
+	precision := 2
+	if unit == "B" {
+		precision = 0
+	}
+
+	return strconv.FormatFloat(c, 'f', precision, 64) + unit
 }
 
 var statusMessages = map[int]string{

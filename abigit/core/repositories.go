@@ -17,6 +17,7 @@ type RepoOnDisk struct {
 	Description string
 
 	Path string
+	Size int64
 }
 
 // ListRepositories returns the list of repositories in a given directory.
@@ -35,11 +36,17 @@ func ListRepositories() ([]*RepoOnDisk, error) {
 			continue
 		}
 
+		fi, err := entry.Info()
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
 		o = append(o, &RepoOnDisk{
 			Slug:        entry.Name(),
 			Description: "Lorem ipsum dolor sit amet.",
 
 			Path: filepath.Join(config.Git.RepositoriesPath, entry.Name()),
+			Size: fi.Size(),
 		})
 	}
 
@@ -59,6 +66,30 @@ func doesRepositoryExist(slug string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func GetRepository(slug string) (*RepoOnDisk, error) {
+	if found, err := doesRepositoryExist(slug); err != nil {
+		return nil, errors.WithStack(err)
+	} else if !found {
+		return nil, util.NewRichErrorFromFiberError(fiber.ErrNotFound, nil)
+	}
+
+	fp := filepath.Join(config.Git.RepositoriesPath, slug)
+
+	stat, err := os.Stat(fp)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	// TODO: populate with meaningful information
+	return &RepoOnDisk{
+		Slug:        slug,
+		Description: "Lorem ipsum dolor sit amet.",
+
+		Path: fp,
+		Size: stat.Size(),
+	}, nil
 }
 
 func ValidateRepositoryName(repoNameSlug string) error {
@@ -120,4 +151,13 @@ func CreateRepository(name string) (*RepoOnDisk, error) {
 	}
 
 	return rod, nil
+}
+
+func IsRepositoryEmpty(repo *git.Repository) (bool, error) {
+	ref, err := repo.Reference("HEAD", false)
+	if err != nil {
+		return false, errors.WithStack(err)
+	}
+
+	return ref.Hash().IsZero(), nil
 }

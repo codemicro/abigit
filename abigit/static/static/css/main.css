@@ -11,6 +11,17 @@ body {
   background-color: #f6f4f2;
 }
 
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
 .secondary {
   font-style: italic;
   color: rgba(43, 22, 28, 0.5);
@@ -37,6 +48,16 @@ form label, form input {
 }
 form label {
   padding-right: 10px;
+}
+
+.card {
+  border: 1px solid #df3062;
+  box-shadow: 3px 3px 0 #df3062;
+  background: white;
+  padding: 15px 10px 15px 10px;
+}
+.card.full-width {
+  width: 100%;
 }
 
 @media only screen and (max-width: 600px) {
@@ -67,11 +88,11 @@ form label {
 }
 
 nav.top-nav {
-  padding: 15px 10px 15px 10px;
-  border: solid #df3062;
-  border-width: 1px 3px 3px 1px;
-  height: 55px;
+  border: 1px solid #df3062;
+  box-shadow: 3px 3px 0 #df3062;
   background: white;
+  padding: 15px 10px 15px 10px;
+  height: 55px;
   display: flex;
   align-items: center;
 }
@@ -99,6 +120,35 @@ nav.top-nav :first-child {
 nav.top-nav h1.name {
   font-size: 33px;
   padding: 0;
+}
+
+div.tabs .tab-list {
+  display: flex;
+}
+div.tabs .tab-list > a {
+  border: 1px solid #df3062;
+  box-shadow: 3px 3px 0 #df3062;
+  background: white;
+  margin-left: 0;
+  padding: 7px 8px;
+}
+div.tabs .tab-list > a.selected {
+  background-color: #f2d6d6;
+  color: #df3062;
+}
+div.tabs .tab-list > a:not(:last-child) {
+  border-right: 0;
+}
+div.tabs .tab-list > a:not(:last-child):hover {
+  box-shadow: unset;
+}
+div.tabs .tab-content {
+  border: 1px solid #df3062;
+  box-shadow: 3px 3px 0 #df3062;
+  background: white;
+  padding: 15px 10px 15px 10px;
+  position: relative;
+  top: -3px;
 }
 
 /*# sourceMappingURL=main.css.map */
