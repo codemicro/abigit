@@ -126,6 +126,8 @@ func htmlErrorHandler(ctx *fiber.Ctx, err error) error {
 		ExtraInformation: extraInformation,
 	}
 
+	// If we're using HTMX, this stops things from silently ceasing to work
+	ctx.Set("HX-Refresh", "true")
 	ctx.Status(re.Status)
 	return views.SendPage(
 		ctx,
