@@ -81,7 +81,7 @@ func GetRepository(slug string) (*RepoOnDisk, error) {
 
 	fp := filepath.Join(config.Git.RepositoriesPath, slug)
 
-	stat, err := os.Stat(fp)
+	size, err := util.DirSize(fp)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -92,7 +92,7 @@ func GetRepository(slug string) (*RepoOnDisk, error) {
 		Description: "Lorem ipsum dolor sit amet.",
 
 		Path: fp,
-		Size: stat.Size(),
+		Size: size,
 	}, nil
 }
 
