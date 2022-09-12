@@ -46,12 +46,17 @@ type ViewRepositoryProps struct {
         TabSelectorReadme = 1 << iota
         TabSelectorShowTree
         TabSelectorShowRefs
+        TabSelectorClone
     )
 
     type RepositoryTabProps struct {
         Repo *core.RepoOnDisk
         ShowTabs int
         CurrentTab int
+
+        Readme struct {
+            Content string
+        }
     }
 {{ endcode }}
 
@@ -97,6 +102,14 @@ type ViewRepositoryProps struct {
             >Refs</a>
         {{ endif }}
 
+        {{ if props.ShowTabs & TabSelectorClone != 0 }}
+            <a hx-get="{[ urls.Make(urls.RepositoryTabClone, props.Repo.Slug) ]}"
+                {{ if selectedTab == TabSelectorClone }}
+                    class="selected"
+                {{ endif }}
+            >Clone</a>
+        {{ endif }}
+
     </div>
 
     <div class="tab-content">
@@ -106,6 +119,8 @@ type ViewRepositoryProps struct {
             {[ repositoryTabTree(ctx, props) ]}
         {{ elif selectedTab == TabSelectorShowRefs }}
             {[ repositoryTabRefs(ctx, props) ]}
+        {{ elif selectedTab == TabSelectorClone }}
+            {[ repositoryTabClone(ctx, props) ]}
         {{ endif }}
     </div>
 
@@ -113,6 +128,7 @@ type ViewRepositoryProps struct {
 
 {{ func repositoryTabReadme(ctx *RenderContext, props *RepositoryTabProps) }}
     <p>TODO: README.md file here</p>
+    <div>{[ props.Readme.Content #unsafe ]}</div>
 {{ endfunc }}
 
 {{ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) }}
@@ -121,4 +137,9 @@ type ViewRepositoryProps struct {
 
 {{ func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) }}
     <p>TODO: refs here</p>
+{{ endfunc }}
+
+{{ func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) }}
+    <p>TODO: clone options here</p>
+    <p>Remember about securing private repositories.</p>
 {{ endfunc }}

@@ -223,7 +223,7 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 
 	props := &views.RepositoryTabProps{
 		Repo:     repoInfo,
-		ShowTabs: views.TabSelectorReadme | views.TabSelectorShowTree | views.TabSelectorShowRefs,
+		ShowTabs: views.TabSelectorReadme | views.TabSelectorShowTree | views.TabSelectorShowRefs | views.TabSelectorClone,
 	}
 
 	switch strings.ToLower(ctx.Query("tab", "readme")) {
@@ -231,6 +231,8 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 		props.CurrentTab = views.TabSelectorShowTree
 	case "refs":
 		props.CurrentTab = views.TabSelectorShowRefs
+	case "clone":
+		props.CurrentTab = views.TabSelectorClone
 	case "readme":
 		fallthrough
 	default:

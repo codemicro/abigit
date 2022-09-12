@@ -28,6 +28,7 @@ const (
 	RepositoryTabReadme = RepositoryTabs + "/?tab=readme"
 	RepositoryTabTree   = RepositoryTabs + "/?tab=tree"
 	RepositoryTabRefs   = RepositoryTabs + "/?tab=refs"
+	RepositoryTabClone  = RepositoryTabs + "/?tab=clone"
 )
 
 func Make(template string, replacements ...interface{}) string {

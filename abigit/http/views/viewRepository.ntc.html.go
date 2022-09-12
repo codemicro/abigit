@@ -48,12 +48,17 @@ const (
 	TabSelectorReadme = 1 << iota
 	TabSelectorShowTree
 	TabSelectorShowRefs
+	TabSelectorClone
 )
 
 type RepositoryTabProps struct {
 	Repo       *core.RepoOnDisk
 	ShowTabs   int
 	CurrentTab int
+
+	Readme struct {
+		Content string
+	}
 }
 
 func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) string {
@@ -101,6 +106,16 @@ func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) string {
 		}
 		_, _ = ntcRijqFUuoGg.WriteString("\n            >Refs</a>\n        ")
 	}
+	_, _ = ntcRijqFUuoGg.WriteString("\n\n        ")
+	if props.ShowTabs&TabSelectorClone != 0 {
+		_, _ = ntcRijqFUuoGg.WriteString("\n            <a hx-get=\"")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabClone, props.Repo.Slug)))
+		_, _ = ntcRijqFUuoGg.WriteString("\"\n                ")
+		if selectedTab == TabSelectorClone {
+			_, _ = ntcRijqFUuoGg.WriteString("\n                    class=\"selected\"\n                ")
+		}
+		_, _ = ntcRijqFUuoGg.WriteString("\n            >Clone</a>\n        ")
+	}
 	_, _ = ntcRijqFUuoGg.WriteString("\n\n    </div>\n\n    <div class=\"tab-content\">\n        ")
 	if selectedTab == TabSelectorReadme {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
@@ -114,13 +129,19 @@ func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) string {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
 		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabRefs(ctx, props))
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
+	} else if selectedTab == TabSelectorClone {
+		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
+		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabClone(ctx, props))
+		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
 	}
 	_, _ = ntcRijqFUuoGg.WriteString("\n    </div>\n\n")
 	return ntcRijqFUuoGg.String()
 }
 func repositoryTabReadme(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: README.md file here</p>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: README.md file here</p>\n    <div>")
+	_, _ = ntcRijqFUuoGg.WriteString(props.Readme.Content)
+	_, _ = ntcRijqFUuoGg.WriteString("</div>\n")
 	return ntcRijqFUuoGg.String()
 }
 func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) string {
@@ -131,5 +152,10 @@ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) string {
 func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
 	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: refs here</p>\n")
+	return ntcRijqFUuoGg.String()
+}
+func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) string {
+	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: clone options here</p>\n    <p>Remember about securing private repositories.</p>\n")
 	return ntcRijqFUuoGg.String()
 }
