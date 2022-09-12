@@ -18,7 +18,7 @@ func PageBegin(ctx *RenderContext) string {
 }
 func PageEnd(ctx *RenderContext) string {
 	ntcRijqFUuoGg := new(ntccdOAGbOhdV.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    </body>\n    </html>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <div class=\"pt\"></div>\n    </body>\n    </html>\n")
 	return ntcRijqFUuoGg.String()
 }
 func Head(ctx *RenderContext) string {

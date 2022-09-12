@@ -1,12 +1,14 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/core"
 	"github.com/codemicro/abigit/abigit/http/views"
 	"github.com/codemicro/abigit/abigit/urls"
 	"github.com/codemicro/abigit/abigit/util"
+	"github.com/codemicro/htmlRenderer"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
@@ -216,10 +218,10 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 		return errors.WithStack(err)
 	}
 
-	//repo, err := gogit.PlainOpen(repoInfo.Path)
-	//if err != nil {
-	//	return errors.WithStack(err)
-	//}
+	repo, err := gogit.PlainOpen(repoInfo.Path)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	props := &views.RepositoryTabProps{
 		Repo:     repoInfo,
@@ -238,6 +240,38 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	default:
 		props.CurrentTab = views.TabSelectorReadme
 	}
+
+	readmeContent, err := core.GetReadmeContent(repo)
+	if err != nil {
+		if errors.Is(err, core.ErrNoReadme) {
+			head, err := core.GetHEAD(repo)
+			if err != nil {
+				log.Warn().Err(err).Msg("could not get head ref when handling core.ErrNoReadme")
+			}
+
+			readmeContent := []byte("No README file available")
+
+			if head != nil {
+				readmeContent = append(readmeContent,
+					[]byte(" - make sure there's a file called README.md in the root of the repository on the "+head.Target().String()+" branch")...,
+				)
+			}
+		} else {
+			return errors.WithStack(err)
+		}
+	}
+
+	buf := new(bytes.Buffer)
+	markdownProcessor := htmlRenderer.NewProcessor(htmlRenderer.WithHeaderLinks())
+	if err := markdownProcessor.Convert(readmeContent, buf); err != nil {
+		return errors.WithStack(err)
+	}
+
+	props.Readme.Content = buf.String()
+
+	props.Clone.SSHUser = config.SSH.User
+	props.Clone.SSHHost = config.SSH.Host
+	props.Clone.SSHStoragePath = config.Git.RepositoriesPath
 
 	rctx, err := e.newRenderContext(ctx)
 	if err != nil {

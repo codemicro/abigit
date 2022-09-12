@@ -4,9 +4,12 @@ import (
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/util"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
 	"github.com/pkg/errors"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -153,11 +156,80 @@ func CreateRepository(name string) (*RepoOnDisk, error) {
 	return rod, nil
 }
 
+func GetHEAD(repo *git.Repository) (*plumbing.Reference, error) {
+	ref, err := repo.Reference("HEAD", true)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return ref, nil
+}
+
 func IsRepositoryEmpty(repo *git.Repository) (bool, error) {
-	ref, err := repo.Reference("HEAD", false)
+	ref, err := GetHEAD(repo)
 	if err != nil {
 		return false, errors.WithStack(err)
 	}
 
 	return ref.Hash().IsZero(), nil
+}
+
+var ErrNoReadme = errors.New("no README.md file found")
+
+// GetReadmeContent returns the raw Markdown of a README.md file
+func GetReadmeContent(repo *git.Repository) ([]byte, error) {
+	if isEmpty, err := IsRepositoryEmpty(repo); err != nil {
+		return nil, errors.WithStack(err)
+	} else if isEmpty {
+		return nil, nil
+	}
+
+	headref, err := GetHEAD(repo)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get HEAD")
+	}
+
+	commit, err := repo.CommitObject(headref.Hash())
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get HEAD commit")
+	}
+
+	tree, err := commit.Tree()
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get HEAD commit tree")
+	}
+
+	fi, err := tree.File("README.md")
+	if err != nil {
+		if errors.Is(err, object.ErrFileNotFound) {
+			fi, err = tree.File("readme.md")
+			if err != nil {
+				if errors.Is(err, object.ErrFileNotFound) {
+					return nil, ErrNoReadme
+				}
+			}
+			goto ok
+		}
+
+		return nil, errors.Wrap(err, "could not read file")
+
+	}
+ok:
+
+	if fi.Type() != plumbing.BlobObject {
+		// make sure it's file and not another tree or something stupid like that
+		return nil, ErrNoReadme
+	}
+
+	reader, err := fi.Blob.Reader()
+	if err != nil {
+		return nil, errors.Wrap(err, "could not obtain reader for readme file")
+	}
+	defer reader.Close()
+
+	content, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read readme file content")
+	}
+
+	return content, nil
 }

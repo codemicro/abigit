@@ -1,3 +1,5 @@
+{{ import "fmt" }}
+{{ import "path/filepath" }}
 {{ import "github.com/codemicro/abigit/abigit/core" }}
 {{ import "github.com/codemicro/abigit/abigit/urls" }}
 
@@ -22,8 +24,7 @@ type ViewRepositoryProps struct {
         <p class="secondary">{[ props.Repo.Description ]}</p>
         <p>Size on disk: {[ formatFileSize(props.Repo.Size) ]}</p>
 
-        \{{ if props.IsEmpty \}}
-        {{ if true == false }}
+        {{ if props.IsEmpty }}
             <div class="card full-width">
                 <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>
             </div>
@@ -56,6 +57,12 @@ type ViewRepositoryProps struct {
 
         Readme struct {
             Content string
+        }
+
+        Clone struct {
+            SSHUser string
+            SSHHost string
+            SSHStoragePath string
         }
     }
 {{ endcode }}
@@ -127,8 +134,7 @@ type ViewRepositoryProps struct {
 {{ endfunc }}
 
 {{ func repositoryTabReadme(ctx *RenderContext, props *RepositoryTabProps) }}
-    <p>TODO: README.md file here</p>
-    <div>{[ props.Readme.Content #unsafe ]}</div>
+    <div class="readme-content">{[ props.Readme.Content #unsafe ]}</div>
 {{ endfunc }}
 
 {{ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) }}
@@ -140,6 +146,11 @@ type ViewRepositoryProps struct {
 {{ endfunc }}
 
 {{ func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) }}
-    <p>TODO: clone options here</p>
-    <p>Remember about securing private repositories.</p>
+    <p>Clone with:</p>
+    <ul>
+        <li>SSH (read/write): {[ fmt.Sprintf("%s@%s:%s", props.Clone.SSHUser, props.Clone.SSHHost, filepath.Join(props.Clone.SSHStoragePath, props.Repo.Slug)) ]}</li>
+        <li>HTTP (read-only): {[ urls.Make(urls.ServeRepositoryByName, props.Repo.Slug + ".git") ]}</li>
+    </ul>
+
+    <p>// TODO: Remember about securing private repositories.</p>
 {{ endfunc }}

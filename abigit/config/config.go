@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -76,5 +77,21 @@ var Platform = struct {
 var Git = struct {
 	RepositoriesPath string
 }{
-	RepositoriesPath: asString(required("git.repositoriesPath")),
+	RepositoriesPath: func() string {
+		const key = "git.repositoriesPath"
+		x := asString(required("git.repositoriesPath"))
+		x, err := filepath.Abs(x)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("config problem: could not get absolute path of %s", key)
+		}
+		return x
+	}(),
+}
+
+var SSH = struct {
+	Host string
+	User string
+}{
+	Host: asString(required("ssh.host")),
+	User: asString(required("ssh.user")),
 }

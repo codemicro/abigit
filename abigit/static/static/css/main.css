@@ -54,7 +54,7 @@ form label {
   border: 1px solid #df3062;
   box-shadow: 3px 3px 0 #df3062;
   background: white;
-  padding: 15px 10px 15px 10px;
+  padding: 15px 20px;
 }
 .card.full-width {
   width: 100%;
@@ -91,7 +91,7 @@ nav.top-nav {
   border: 1px solid #df3062;
   box-shadow: 3px 3px 0 #df3062;
   background: white;
-  padding: 15px 10px 15px 10px;
+  padding: 15px 20px;
   height: 55px;
   display: flex;
   align-items: center;
@@ -147,7 +147,7 @@ div.tabs .tab-content {
   border: 1px solid #df3062;
   box-shadow: 3px 3px 0 #df3062;
   background: white;
-  padding: 15px 10px 15px 10px;
+  padding: 15px 20px;
   position: relative;
   top: -3px;
 }

@@ -4,9 +4,11 @@
 package views
 
 import (
+	"fmt"
 	"github.com/codemicro/abigit/abigit/core"
 	"github.com/codemicro/abigit/abigit/urls"
 	ntcWzvIICEQKo "html"
+	"path/filepath"
 	ntctyoxNCvLze "strings"
 )
 
@@ -30,8 +32,8 @@ func ViewRepository(ctx *RenderContext, props *ViewRepositoryProps) string {
 	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(props.Repo.Description))
 	_, _ = ntcRijqFUuoGg.WriteString("</p>\n        <p>Size on disk: ")
 	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(formatFileSize(props.Repo.Size)))
-	_, _ = ntcRijqFUuoGg.WriteString("</p>\n\n        \\{{ if props.IsEmpty \\}}\n        ")
-	if true == false {
+	_, _ = ntcRijqFUuoGg.WriteString("</p>\n\n        ")
+	if props.IsEmpty {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            <div class=\"card full-width\">\n                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>\n            </div>\n        ")
 	} else {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            <div id=\"tabs\" class=\"tabs\"\n                 hx-get=\"")
@@ -58,6 +60,12 @@ type RepositoryTabProps struct {
 
 	Readme struct {
 		Content string
+	}
+
+	Clone struct {
+		SSHUser        string
+		SSHHost        string
+		SSHStoragePath string
 	}
 }
 
@@ -139,7 +147,7 @@ func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) string {
 }
 func repositoryTabReadme(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: README.md file here</p>\n    <div>")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <div class=\"readme-content\">")
 	_, _ = ntcRijqFUuoGg.WriteString(props.Readme.Content)
 	_, _ = ntcRijqFUuoGg.WriteString("</div>\n")
 	return ntcRijqFUuoGg.String()
@@ -156,6 +164,10 @@ func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) string {
 }
 func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: clone options here</p>\n    <p>Remember about securing private repositories.</p>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>Clone with:</p>\n    <ul>\n        <li>SSH (read/write): ")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(fmt.Sprintf("%s@%s:%s", props.Clone.SSHUser, props.Clone.SSHHost, filepath.Join(props.Clone.SSHStoragePath, props.Repo.Slug))))
+	_, _ = ntcRijqFUuoGg.WriteString("</li>\n        <li>HTTP (read-only): ")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.ServeRepositoryByName, props.Repo.Slug+".git")))
+	_, _ = ntcRijqFUuoGg.WriteString("</li>\n    </ul>\n\n    <p>// TODO: Remember about securing private repositories.</p>\n")
 	return ntcRijqFUuoGg.String()
 }
