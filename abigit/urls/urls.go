@@ -24,11 +24,12 @@ const (
 	RepositoryByName      = Repositories + "/:slug"
 	ServeRepositoryByName = Repositories + "/:slug"
 
-	RepositoryTabs      = RepositoryByName + "/tab"
-	RepositoryTabReadme = RepositoryTabs + "/?tab=readme"
-	RepositoryTabTree   = RepositoryTabs + "/?tab=tree"
-	RepositoryTabRefs   = RepositoryTabs + "/?tab=refs"
-	RepositoryTabClone  = RepositoryTabs + "/?tab=clone"
+	RepositoryTabs       = RepositoryByName + "/tab"
+	RepositoryTabReadme  = RepositoryTabs + "/?tab=readme"
+	RepositoryTabTree    = RepositoryTabs + "/?tab=tree"
+	RepositoryTabRefs    = RepositoryTabs + "/?tab=refs"
+	RepositoryTabClone   = RepositoryTabs + "/?tab=clone"
+	RepositoryTabCommits = RepositoryTabs + "/?tab=commits"
 )
 
 func Make(template string, replacements ...interface{}) string {

@@ -45,11 +45,11 @@ const (
 	TabSelectorShowTree
 	TabSelectorShowRefs
 	TabSelectorClone
+	TabSelectorCommits
 )
 
 type RepositoryTabProps struct {
 	Repo       *core.RepoOnDisk
-	ShowTabs   int
 	CurrentTab int
 
 	Readme struct {
@@ -65,75 +65,56 @@ type RepositoryTabProps struct {
 
 func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n    ")
-	selectedTab := props.CurrentTab
-
-	if props.ShowTabs&selectedTab == 0 {
-		for selectedTab&0b1 == 0 {
-			if selectedTab == 0 {
-				break
-			}
-
-			selectedTab = selectedTab >> 1
-		}
+	_, _ = ntcRijqFUuoGg.WriteString("\n\n    <div class=\"tab-list\">\n\n        <a hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabReadme, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n            ")
+	if props.CurrentTab == TabSelectorReadme {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                 class=\"selected\"\n            ")
 	}
-
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n    <div class=\"tab-list\">\n\n        ")
-	if props.ShowTabs&TabSelectorReadme != 0 {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <a hx-get=\"")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabReadme, props.Repo.Slug)))
-		_, _ = ntcRijqFUuoGg.WriteString("\"\n                ")
-		if selectedTab == TabSelectorReadme {
-			_, _ = ntcRijqFUuoGg.WriteString("\n                     class=\"selected\"\n                ")
-		}
-		_, _ = ntcRijqFUuoGg.WriteString("\n            >README</a>\n        ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n        >README</a>\n\n        <a hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabTree, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n            ")
+	if props.CurrentTab == TabSelectorShowTree {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                class=\"selected\"\n            ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n        ")
-	if props.ShowTabs&TabSelectorShowTree != 0 {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <a hx-get=\"")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabTree, props.Repo.Slug)))
-		_, _ = ntcRijqFUuoGg.WriteString("\"\n                ")
-		if selectedTab == TabSelectorShowTree {
-			_, _ = ntcRijqFUuoGg.WriteString("\n                    class=\"selected\"\n                ")
-		}
-		_, _ = ntcRijqFUuoGg.WriteString("\n            >Tree</a>\n        ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n        >Tree</a>\n\n        <a hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabRefs, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n            ")
+	if props.CurrentTab == TabSelectorShowRefs {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                class=\"selected\"\n            ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n        ")
-	if props.ShowTabs&TabSelectorShowRefs != 0 {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <a hx-get=\"")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabRefs, props.Repo.Slug)))
-		_, _ = ntcRijqFUuoGg.WriteString("\"\n                ")
-		if selectedTab == TabSelectorShowRefs {
-			_, _ = ntcRijqFUuoGg.WriteString("\n                    class=\"selected\"\n                ")
-		}
-		_, _ = ntcRijqFUuoGg.WriteString("\n            >Refs</a>\n        ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n        >Refs</a>\n\n        <a hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabCommits, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n            ")
+	if props.CurrentTab == TabSelectorCommits {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                class=\"selected\"\n            ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n        ")
-	if props.ShowTabs&TabSelectorClone != 0 {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <a hx-get=\"")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabClone, props.Repo.Slug)))
-		_, _ = ntcRijqFUuoGg.WriteString("\"\n                ")
-		if selectedTab == TabSelectorClone {
-			_, _ = ntcRijqFUuoGg.WriteString("\n                    class=\"selected\"\n                ")
-		}
-		_, _ = ntcRijqFUuoGg.WriteString("\n            >Clone</a>\n        ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n        >Commits</a>\n\n        <a hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabClone, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n            ")
+	if props.CurrentTab == TabSelectorClone {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                class=\"selected\"\n            ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n\n    </div>\n\n    <div class=\"tab-content\">\n        ")
-	if selectedTab == TabSelectorReadme {
+	_, _ = ntcRijqFUuoGg.WriteString("\n        >Clone</a>\n\n    </div>\n\n    <div class=\"tab-content\">\n        ")
+	if props.CurrentTab == TabSelectorReadme {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
 		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabReadme(ctx, props))
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
-	} else if selectedTab == TabSelectorShowTree {
+	} else if props.CurrentTab == TabSelectorShowTree {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
 		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabTree(ctx, props))
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
-	} else if selectedTab == TabSelectorShowRefs {
+	} else if props.CurrentTab == TabSelectorShowRefs {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
 		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabRefs(ctx, props))
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
-	} else if selectedTab == TabSelectorClone {
+	} else if props.CurrentTab == TabSelectorClone {
 		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
 		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabClone(ctx, props))
+		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
+	} else if props.CurrentTab == TabSelectorCommits {
+		_, _ = ntcRijqFUuoGg.WriteString("\n            ")
+		_, _ = ntcRijqFUuoGg.WriteString(repositoryTabCommits(ctx, props))
 		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
 	}
 	_, _ = ntcRijqFUuoGg.WriteString("\n    </div>\n\n")
@@ -163,5 +144,10 @@ func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) string {
 	_, _ = ntcRijqFUuoGg.WriteString("</li>\n        <li>HTTP (read-only): ")
 	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.ServeRepositoryByName, props.Repo.Slug+".git")))
 	_, _ = ntcRijqFUuoGg.WriteString("</li>\n    </ul>\n\n    <p>// TODO: Remember about securing private repositories.</p>\n")
+	return ntcRijqFUuoGg.String()
+}
+func repositoryTabCommits(ctx *RenderContext, props *RepositoryTabProps) string {
+	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: Commits here</p>\n")
 	return ntcRijqFUuoGg.String()
 }

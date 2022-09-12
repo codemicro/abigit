@@ -42,11 +42,11 @@ type ViewRepositoryProps struct {
         TabSelectorShowTree
         TabSelectorShowRefs
         TabSelectorClone
+        TabSelectorCommits
     )
 
     type RepositoryTabProps struct {
         Repo *core.RepoOnDisk
-        ShowTabs int
         CurrentTab int
 
         Readme struct {
@@ -63,65 +63,51 @@ type ViewRepositoryProps struct {
 
 {{ func RepositoryTabs(ctx *RenderContext, props *RepositoryTabProps) }}
 
-    {{ code }}
-        selectedTab := props.CurrentTab
-
-        if props.ShowTabs & selectedTab == 0 {
-            for selectedTab & 0b1 == 0 {
-                if selectedTab == 0 {
-                    break
-                }
-
-                selectedTab = selectedTab >> 1
-            }
-        }
-    {{ endcode }}
-
     <div class="tab-list">
 
-        {{ if props.ShowTabs & TabSelectorReadme != 0 }}
-            <a hx-get="{[ urls.Make(urls.RepositoryTabReadme, props.Repo.Slug) ]}"
-                {{ if selectedTab == TabSelectorReadme }}
-                     class="selected"
-                {{ endif }}
-            >README</a>
-        {{ endif }}
+        <a hx-get="{[ urls.Make(urls.RepositoryTabReadme, props.Repo.Slug) ]}"
+            {{ if props.CurrentTab == TabSelectorReadme }}
+                 class="selected"
+            {{ endif }}
+        >README</a>
 
-        {{ if props.ShowTabs & TabSelectorShowTree != 0 }}
-            <a hx-get="{[ urls.Make(urls.RepositoryTabTree, props.Repo.Slug) ]}"
-                {{ if selectedTab == TabSelectorShowTree }}
-                    class="selected"
-                {{ endif }}
-            >Tree</a>
-        {{ endif }}
+        <a hx-get="{[ urls.Make(urls.RepositoryTabTree, props.Repo.Slug) ]}"
+            {{ if props.CurrentTab == TabSelectorShowTree }}
+                class="selected"
+            {{ endif }}
+        >Tree</a>
 
-        {{ if props.ShowTabs & TabSelectorShowRefs != 0 }}
-            <a hx-get="{[ urls.Make(urls.RepositoryTabRefs, props.Repo.Slug) ]}"
-                {{ if selectedTab == TabSelectorShowRefs }}
-                    class="selected"
-                {{ endif }}
-            >Refs</a>
-        {{ endif }}
+        <a hx-get="{[ urls.Make(urls.RepositoryTabRefs, props.Repo.Slug) ]}"
+            {{ if props.CurrentTab == TabSelectorShowRefs }}
+                class="selected"
+            {{ endif }}
+        >Refs</a>
 
-        {{ if props.ShowTabs & TabSelectorClone != 0 }}
-            <a hx-get="{[ urls.Make(urls.RepositoryTabClone, props.Repo.Slug) ]}"
-                {{ if selectedTab == TabSelectorClone }}
-                    class="selected"
-                {{ endif }}
-            >Clone</a>
-        {{ endif }}
+        <a hx-get="{[ urls.Make(urls.RepositoryTabCommits, props.Repo.Slug) ]}"
+            {{ if props.CurrentTab == TabSelectorCommits }}
+                class="selected"
+            {{ endif }}
+        >Commits</a>
+
+        <a hx-get="{[ urls.Make(urls.RepositoryTabClone, props.Repo.Slug) ]}"
+            {{ if props.CurrentTab == TabSelectorClone }}
+                class="selected"
+            {{ endif }}
+        >Clone</a>
 
     </div>
 
     <div class="tab-content">
-        {{ if selectedTab == TabSelectorReadme }}
+        {{ if props.CurrentTab == TabSelectorReadme }}
             {[ repositoryTabReadme(ctx, props) ]}
-        {{ elif selectedTab == TabSelectorShowTree }}
+        {{ elif props.CurrentTab == TabSelectorShowTree }}
             {[ repositoryTabTree(ctx, props) ]}
-        {{ elif selectedTab == TabSelectorShowRefs }}
+        {{ elif props.CurrentTab == TabSelectorShowRefs }}
             {[ repositoryTabRefs(ctx, props) ]}
-        {{ elif selectedTab == TabSelectorClone }}
+        {{ elif props.CurrentTab == TabSelectorClone }}
             {[ repositoryTabClone(ctx, props) ]}
+        {{ elif props.CurrentTab == TabSelectorCommits }}
+            {[ repositoryTabCommits(ctx, props) ]}
         {{ endif }}
     </div>
 
@@ -147,4 +133,8 @@ type ViewRepositoryProps struct {
     </ul>
 
     <p>// TODO: Remember about securing private repositories.</p>
+{{ endfunc }}
+
+{{ func repositoryTabCommits(ctx *RenderContext, props *RepositoryTabProps) }}
+    <p>TODO: Commits here</p>
 {{ endfunc }}
