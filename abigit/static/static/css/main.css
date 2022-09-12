@@ -131,6 +131,7 @@ div.tabs .tab-list > a {
   background: white;
   margin-left: 0;
   padding: 7px 8px;
+  cursor: pointer;
 }
 div.tabs .tab-list > a.selected {
   background-color: #f2d6d6;
