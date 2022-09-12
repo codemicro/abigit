@@ -24,18 +24,18 @@ type ViewRepositoryProps struct {
         <p class="secondary">{[ props.Repo.Description ]}</p>
         <p>Size on disk: {[ formatFileSize(props.Repo.Size) ]}</p>
 
-        {{ if props.IsEmpty }}
-            <div class="card full-width">
-                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>
-            </div>
-        {{ else }}
+<!--        \{{ if props.IsEmpty \}}-->
+<!--            <div class="card full-width">-->
+<!--                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>-->
+<!--            </div>-->
+<!--        \{{ else \}}-->
             <div id="tabs" class="tabs"
                  hx-get="{[ urls.Make(urls.RepositoryTabs, props.Repo.Slug) ]}"
                  hx-trigger="load"
                  hx-target="#tabs"
                  hx-swap="innerHTML"
             ></div>
-        {{ endif }}
+<!--        \{{ endif \}}-->
     </div>
 
     {[ PageEnd(ctx) ]}

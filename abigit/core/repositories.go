@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"io"
 	"os"
 	"os/exec"
@@ -134,14 +135,14 @@ func CreateRepository(name string) (*RepoOnDisk, error) {
 	}
 
 	// Create `post-update` hook
-	if err := os.MkdirAll(filepath.Join(rod.Path, "hooks"), os.ModeDir); err != nil {
+	if err := os.MkdirAll(filepath.Join(rod.Path, "hooks"), 0755); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	if err := os.WriteFile(
 		filepath.Join(rod.Path, "hooks", "post-update"),
 		[]byte(postUpdateHookContents),
-		775,
+		0770,
 	); err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -156,21 +157,73 @@ func CreateRepository(name string) (*RepoOnDisk, error) {
 	return rod, nil
 }
 
+func AutoselectDefaultBranch(repo *git.Repository) error {
+	// Get HEAD to first branch
+	bi, err := repo.Branches()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	branch, err := bi.Next()
+	if err != nil {
+		return errors.Wrap(err, "no branches")
+	}
+
+	log.Debug().Msgf("autoselecting new default branch as %s", branch.Name())
+
+	return errors.WithStack(
+		repo.Storer.SetReference(plumbing.NewSymbolicReference("HEAD", branch.Name())),
+	)
+}
+
 func GetHEAD(repo *git.Repository) (*plumbing.Reference, error) {
 	ref, err := repo.Reference("HEAD", true)
 	if err != nil {
+		if errors.Is(err, plumbing.ErrReferenceNotFound) {
+			goto attemptHeadSwitch
+		}
 		return nil, errors.WithStack(err)
 	}
+
 	return ref, nil
+
+attemptHeadSwitch:
+	{
+		if err := AutoselectDefaultBranch(repo); err != nil {
+			return nil, errors.Wrap(err, "could not autoselect new default branch")
+		}
+		ref, err = repo.Reference("HEAD", true)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		return ref, nil
+	}
+}
+
+func GetDefaultBranch(repo *git.Repository) (string, error) {
+	ref, err := repo.Reference("HEAD", false)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return ref.Target().Short(), nil
 }
 
 func IsRepositoryEmpty(repo *git.Repository) (bool, error) {
-	ref, err := GetHEAD(repo)
+	branches, err := repo.Branches()
 	if err != nil {
 		return false, errors.WithStack(err)
 	}
 
-	return ref.Hash().IsZero(), nil
+	_, err = branches.Next()
+	if err == nil {
+		return false, nil
+	}
+
+	if err.Error() == "EOF" {
+		return true, nil
+	}
+
+	return false, err
 }
 
 var ErrNoReadme = errors.New("no README.md file found")
@@ -180,7 +233,7 @@ func GetReadmeContent(repo *git.Repository) ([]byte, error) {
 	if isEmpty, err := IsRepositoryEmpty(repo); err != nil {
 		return nil, errors.WithStack(err)
 	} else if isEmpty {
-		return nil, nil
+		return nil, ErrNoReadme
 	}
 
 	headref, err := GetHEAD(repo)

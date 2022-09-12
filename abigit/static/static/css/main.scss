@@ -94,7 +94,6 @@ $border-thick: 3px;
 @mixin card() {
   border: $border-thin solid $accent-colour;
   box-shadow: $border-thick $border-thick 0 $accent-colour;
-  // border-width: $border-thin $border-thick $border-thick $border-thin;
   background: white;
 }
 

@@ -244,16 +244,16 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	readmeContent, err := core.GetReadmeContent(repo)
 	if err != nil {
 		if errors.Is(err, core.ErrNoReadme) {
-			head, err := core.GetHEAD(repo)
+			defaultBranch, err := core.GetDefaultBranch(repo)
 			if err != nil {
-				log.Warn().Err(err).Msg("could not get head ref when handling core.ErrNoReadme")
+				log.Warn().Msg("could not fetch default branch")
 			}
 
-			readmeContent := []byte("No README file available")
+			readmeContent = []byte("*No README file available*")
 
-			if head != nil {
+			if defaultBranch != "" {
 				readmeContent = append(readmeContent,
-					[]byte(" - make sure there's a file called README.md in the root of the repository on the "+head.Target().String()+" branch")...,
+					[]byte(" - *make sure there's a file called README.md in the root of the repository on the `"+defaultBranch+"` branch*")...,
 				)
 			}
 		} else {

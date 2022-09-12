@@ -32,15 +32,9 @@ func ViewRepository(ctx *RenderContext, props *ViewRepositoryProps) string {
 	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(props.Repo.Description))
 	_, _ = ntcRijqFUuoGg.WriteString("</p>\n        <p>Size on disk: ")
 	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(formatFileSize(props.Repo.Size)))
-	_, _ = ntcRijqFUuoGg.WriteString("</p>\n\n        ")
-	if props.IsEmpty {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <div class=\"card full-width\">\n                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>\n            </div>\n        ")
-	} else {
-		_, _ = ntcRijqFUuoGg.WriteString("\n            <div id=\"tabs\" class=\"tabs\"\n                 hx-get=\"")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabs, props.Repo.Slug)))
-		_, _ = ntcRijqFUuoGg.WriteString("\"\n                 hx-trigger=\"load\"\n                 hx-target=\"#tabs\"\n                 hx-swap=\"innerHTML\"\n            ></div>\n        ")
-	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n    </div>\n\n    ")
+	_, _ = ntcRijqFUuoGg.WriteString("</p>\n\n<!--        \\{{ if props.IsEmpty \\}}-->\n<!--            <div class=\"card full-width\">-->\n<!--                <span>This repository is uninitialised. Try creating and pushing a commit, then try again.</span>-->\n<!--            </div>-->\n<!--        \\{{ else \\}}-->\n            <div id=\"tabs\" class=\"tabs\"\n                 hx-get=\"")
+	_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryTabs, props.Repo.Slug)))
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n                 hx-trigger=\"load\"\n                 hx-target=\"#tabs\"\n                 hx-swap=\"innerHTML\"\n            ></div>\n<!--        \\{{ endif \\}}-->\n    </div>\n\n    ")
 	_, _ = ntcRijqFUuoGg.WriteString(PageEnd(ctx))
 	_, _ = ntcRijqFUuoGg.WriteString("\n\n")
 	return ntcRijqFUuoGg.String()
