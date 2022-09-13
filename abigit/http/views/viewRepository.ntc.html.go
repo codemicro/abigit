@@ -64,6 +64,8 @@ type RepositoryTabProps struct {
 	}
 
 	Refs struct {
+		DefaultBranch plumbing.ReferenceName
+
 		Branches []*plumbing.Reference
 		Tags     []*plumbing.Reference
 	}
@@ -140,23 +142,64 @@ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) string {
 }
 func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <table class=\"table full-width\">\n        <thead>\n            <tr>\n                <th>Name</th>\n                <th>Type</th>\n                <th>Commit hash</th>\n            </tr>\n        </thead>\n        <tbody>\n            ")
-	for _, branch := range props.Refs.Branches {
-		_, _ = ntcRijqFUuoGg.WriteString("\n                <tr><td>")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Name().Short()))
-		_, _ = ntcRijqFUuoGg.WriteString("</td><td>Branch</td><td>")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Hash().String()))
-		_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n            ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    ")
+	if props.Refs.DefaultBranch != "" && ctx.isAuthed() {
+		_, _ = ntcRijqFUuoGg.WriteString("\n        ")
+		_, _ = ntcRijqFUuoGg.WriteString(RepositoryTabRefsDefaultBranchSelector(ctx, props, ""))
+		_, _ = ntcRijqFUuoGg.WriteString("\n        <div class=\"pt\"></div>\n    ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n            ")
-	for _, tag := range props.Refs.Tags {
-		_, _ = ntcRijqFUuoGg.WriteString("\n                <tr><td>")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Name().Short()))
-		_, _ = ntcRijqFUuoGg.WriteString("</td><td>Tag</td><td>")
-		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Hash().String()))
-		_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n            ")
+	_, _ = ntcRijqFUuoGg.WriteString("\n\n    ")
+	if !(len(props.Refs.Branches) == 0 && len(props.Refs.Tags) == 0) {
+		_, _ = ntcRijqFUuoGg.WriteString("\n        <table class=\"table full-width\">\n            <thead>\n                <tr>\n                    <th>Name</th>\n                    <th>Type</th>\n                    <th>Commit hash</th>\n                </tr>\n            </thead>\n            <tbody>\n                ")
+		for _, branch := range props.Refs.Branches {
+			_, _ = ntcRijqFUuoGg.WriteString("\n                    <tr><td>")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Name().Short()))
+			_, _ = ntcRijqFUuoGg.WriteString("</td><td>Branch</td><td>")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Hash().String()))
+			_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n                ")
+		}
+		_, _ = ntcRijqFUuoGg.WriteString("\n                ")
+		for _, tag := range props.Refs.Tags {
+			_, _ = ntcRijqFUuoGg.WriteString("\n                    <tr><td>")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Name().Short()))
+			_, _ = ntcRijqFUuoGg.WriteString("</td><td>Tag</td><td>")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Hash().String()))
+			_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n                ")
+		}
+		_, _ = ntcRijqFUuoGg.WriteString("\n            </tbody>\n        </table>\n    ")
+	} else {
+		_, _ = ntcRijqFUuoGg.WriteString("\n        <p class=\"secondary\">No refs available to display.</p>\n    ")
 	}
-	_, _ = ntcRijqFUuoGg.WriteString("\n        </tbody>\n    </table>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n")
+	return ntcRijqFUuoGg.String()
+}
+func RepositoryTabRefsDefaultBranchSelector(ctx *RenderContext, props *RepositoryTabProps, message string) string {
+	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
+	_, _ = ntcRijqFUuoGg.WriteString("\n    ")
+	if len(props.Refs.Branches) != 0 {
+		_, _ = ntcRijqFUuoGg.WriteString("\n        <div id=\"defaultBranchSelectContainer\">\n            <label for=\"defaultBranchSelect\">Default branch</label>\n            <select id=\"defaultBranchSelect\" name=\"defaultBranch\"\n                    hx-post=\"")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(urls.Make(urls.RepositoryUpdateDefaultBranch, props.Repo.Slug)))
+		_, _ = ntcRijqFUuoGg.WriteString("\"\n                    hx-trigger=\"change\"\n                    hx-target=\"#defaultBranchSelectContainer\">\n                ")
+		for _, branch := range props.Refs.Branches {
+			_, _ = ntcRijqFUuoGg.WriteString("\n                    <option value=\"")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Name().String()))
+			_, _ = ntcRijqFUuoGg.WriteString("\"\n                        ")
+			if branch.Name() == props.Refs.DefaultBranch {
+				_, _ = ntcRijqFUuoGg.WriteString("\n                            selected\n                        ")
+			}
+			_, _ = ntcRijqFUuoGg.WriteString("\n                    >")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Name().String()))
+			_, _ = ntcRijqFUuoGg.WriteString("</option>\n                ")
+		}
+		_, _ = ntcRijqFUuoGg.WriteString("\n            </select>\n            ")
+		if message != "" {
+			_, _ = ntcRijqFUuoGg.WriteString("\n                <span id=\"defaultbranchmessage\" class=\"message\">")
+			_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(message))
+			_, _ = ntcRijqFUuoGg.WriteString("</span>\n                <script>\n                    setTimeout(function () {\n                        document.getElementById(\"defaultbranchmessage\").outerHTML = \"\";\n                    }, 1000);\n                </script>\n            ")
+		}
+		_, _ = ntcRijqFUuoGg.WriteString("\n        </div>\n    ")
+	}
+	_, _ = ntcRijqFUuoGg.WriteString("\n")
 	return ntcRijqFUuoGg.String()
 }
 func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) string {

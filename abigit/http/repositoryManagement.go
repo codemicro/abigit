@@ -1,14 +1,12 @@
 package http
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/core"
 	"github.com/codemicro/abigit/abigit/http/views"
 	"github.com/codemicro/abigit/abigit/urls"
 	"github.com/codemicro/abigit/abigit/util"
-	"github.com/codemicro/htmlRenderer"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/gofiber/fiber/v2"
@@ -71,7 +69,7 @@ func (e *Endpoints) createRepositoryValidation(ctx *fiber.Ctx) error {
 	slug := slug.Make(repoName)
 	if err := core.ValidateRepositoryName(slug); err != nil {
 		if util.IsRichError(err) {
-			return ctx.SendString(fmt.Sprintf(`<span style="color: red;">%s</span>`, err.(*util.RichError).Reason))
+			return ctx.SendString(fmt.Sprintf(`<span class="problem">%s</span>`, err.(*util.RichError).Reason))
 		}
 	}
 
@@ -211,6 +209,38 @@ func (e *Endpoints) repositorySizeOnDisk(ctx *fiber.Ctx) error {
 	return ctx.SendString(views.FormatFileSize(repoSize))
 }
 
+func populateRefsTabProps(repo *gogit.Repository, props *views.RepositoryTabProps) error {
+	ri, err := repo.References()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := ri.ForEach(func(ref *plumbing.Reference) error {
+
+		if ref.Type() == plumbing.HashReference {
+			if ref.Name().IsBranch() {
+				props.Refs.Branches = append(props.Refs.Branches, ref)
+			}
+			if ref.Name().IsTag() {
+				props.Refs.Tags = append(props.Refs.Tags, ref)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return errors.WithStack(err)
+	}
+
+	defaultBranch, err := core.GetDefaultBranch(repo)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	props.Refs.DefaultBranch = defaultBranch
+
+	return nil
+}
+
 func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	repoSlug := ctx.Params("slug")
 	if repoSlug == "" || !core.ValidateSlug(repoSlug) {
@@ -237,24 +267,7 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	case "refs":
 		props.CurrentTab = views.TabSelectorShowRefs
 
-		ri, err := repo.References()
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		if err := ri.ForEach(func(ref *plumbing.Reference) error {
-
-			if ref.Type() == plumbing.HashReference {
-				if ref.Name().IsBranch() {
-					props.Refs.Branches = append(props.Refs.Branches, ref)
-				}
-				if ref.Name().IsTag() {
-					props.Refs.Tags = append(props.Refs.Tags, ref)
-				}
-			}
-
-			return nil
-		}); err != nil {
+		if err := populateRefsTabProps(repo, props); err != nil {
 			return errors.WithStack(err)
 		}
 
@@ -271,7 +284,7 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	default:
 		props.CurrentTab = views.TabSelectorReadme
 
-		readmeContent, err := core.GetReadmeContent(repo)
+		readmeContent, err := core.GetRenderedReadmeContent(repo)
 		if err != nil {
 			if errors.Is(err, core.ErrNoReadme) {
 				defaultBranch, err := core.GetDefaultBranch(repo)
@@ -279,25 +292,21 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 					log.Warn().Msg("could not fetch default branch")
 				}
 
-				readmeContent = []byte("*No README file available*")
+				readmeContent = `<p class="secondary">`
+				readmeContent += "No README file available"
 
 				if defaultBranch != "" {
-					readmeContent = append(readmeContent,
-						[]byte(" - *make sure there's a file called README.md in the root of the repository on the `"+defaultBranch+"` branch*")...,
-					)
+					readmeContent += " - make sure there's a file called <code>README.md</code> in the root of the " +
+						"repository on the <code>" + defaultBranch.Short() + "</code> branch"
 				}
+
+				readmeContent += "</p>"
 			} else {
 				return errors.WithStack(err)
 			}
 		}
 
-		buf := new(bytes.Buffer)
-		markdownProcessor := htmlRenderer.NewProcessor(htmlRenderer.WithHeaderLinks())
-		if err := markdownProcessor.Convert(readmeContent, buf); err != nil {
-			return errors.WithStack(err)
-		}
-
-		props.Readme.Content = buf.String()
+		props.Readme.Content = readmeContent
 	}
 
 	rctx, err := e.newRenderContext(ctx)
@@ -308,5 +317,59 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	return views.SendPage(
 		ctx,
 		views.RepositoryTabs(rctx, props),
+	)
+}
+
+func (e *Endpoints) updateRepositoryDefaultBranch(ctx *fiber.Ctx) error {
+	si := e.getSessionInformation(ctx)
+	if si == nil {
+		return util.NewRichErrorFromFiberError(fiber.ErrUnauthorized, nil)
+	}
+
+	repoSlug := ctx.Params("slug")
+	if repoSlug == "" || !core.ValidateSlug(repoSlug) {
+		return fiber.ErrBadRequest
+	}
+
+	repoInfo, err := core.GetRepository(repoSlug)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	repo, err := gogit.PlainOpen(repoInfo.Path)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	targetRef := plumbing.ReferenceName(ctx.FormValue("defaultBranch"))
+
+	if !targetRef.IsBranch() {
+		return util.NewRichErrorFromFiberError(fiber.ErrBadRequest, "Provided value is not a branch reference")
+	}
+
+	branch, err := repo.Reference(targetRef, false)
+	if err != nil {
+		if errors.Is(err, gogit.ErrBranchNotFound) {
+			return util.NewRichErrorFromFiberError(fiber.ErrBadRequest, "Branch not found")
+		}
+		return errors.WithStack(err)
+	}
+
+	if err := core.SetDefaultBranch(repo, branch.Name()); err != nil {
+		return errors.WithStack(err)
+	}
+
+	ctx.Type("html")
+	rctx, err := e.newRenderContext(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	props := new(views.RepositoryTabProps)
+	props.Repo = repoInfo
+
+	_ = populateRefsTabProps(repo, props)
+
+	return ctx.SendString(
+		views.RepositoryTabRefsDefaultBranchSelector(rctx, props, "Updated successfully!"),
 	)
 }

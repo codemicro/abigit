@@ -33,7 +33,7 @@ func CreateRepository(ctx *RenderContext, props *CreateRepositoryProps) string {
 	}
 	_, _ = ntcRijqFUuoGg.WriteString("\n\n        <form action=\"\" method=\"post\">\n            <div>\n                <label for=\"name\">Name</label>\n                <input type=\"text\" name=\"name\" id=\"name\" required\n                    hx-post=\"")
 	_, _ = ntcRijqFUuoGg.WriteString(ntcbutTMxUNta.EscapeString(urls.Make(urls.CreateRepositoryValidation)))
-	_, _ = ntcRijqFUuoGg.WriteString("\"\n                    hx-trigger=\"keyup changed delay:250ms\"\n                    hx-target=\"#validation-output\"\n                >\n                <span style=\"padding-left: 10px; font-style: italic;\" id=\"validation-output\"></span>\n            </div>\n            <div>\n                <input type=\"submit\" value=\"Create\">\n            </div>\n        </form>\n\n    </div>\n\n    ")
+	_, _ = ntcRijqFUuoGg.WriteString("\"\n                    hx-trigger=\"keyup changed delay:250ms\"\n                    hx-target=\"#validation-output\"\n                >\n                <span class=\"message\" style=\"padding-left: 10px\" id=\"validation-output\"></span>\n            </div>\n            <div>\n                <input type=\"submit\" value=\"Create\">\n            </div>\n        </form>\n\n    </div>\n\n    ")
 	_, _ = ntcRijqFUuoGg.WriteString(PageEnd(ctx))
 	_, _ = ntcRijqFUuoGg.WriteString("\n\n")
 	return ntcRijqFUuoGg.String()

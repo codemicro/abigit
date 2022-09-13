@@ -55,7 +55,7 @@ func Navbar(ctx *RenderContext) string {
 }
 func ProblemBox(problem string) string {
 	ntcRijqFUuoGg := new(ntccdOAGbOhdV.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <p style=\"color: red\">")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <p class=\"problem\">")
 	_, _ = ntcRijqFUuoGg.WriteString(ntcnNxkPiCOnG.EscapeString(problem))
 	_, _ = ntcRijqFUuoGg.WriteString("</p>\n")
 	return ntcRijqFUuoGg.String()

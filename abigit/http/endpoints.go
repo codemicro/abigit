@@ -103,6 +103,7 @@ func (e *Endpoints) SetupApp() *fiber.App {
 		Expiration:   time.Minute * 10,
 		CacheControl: false,
 	}), e.repositorySizeOnDisk)
+	app.Post(urls.RepositoryUpdateDefaultBranch, e.updateRepositoryDefaultBranch)
 
 	app.Use("/", static.NewHandler())
 

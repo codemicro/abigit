@@ -62,6 +62,8 @@ type ViewRepositoryProps struct {
         }
 
         Refs struct {
+            DefaultBranch plumbing.ReferenceName
+
             Branches []*plumbing.Reference
             Tags []*plumbing.Reference
         }
@@ -129,23 +131,60 @@ type ViewRepositoryProps struct {
 {{ endfunc }}
 
 {{ func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) }}
-    <table class="table full-width">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Commit hash</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ for _, branch := range props.Refs.Branches }}
-                <tr><td>{[ branch.Name().Short() ]}</td><td>Branch</td><td>{[ branch.Hash().String() ]}</td></tr>
-            {{ endfor }}
-            {{ for _, tag := range props.Refs.Tags }}
-                <tr><td>{[ tag.Name().Short() ]}</td><td>Tag</td><td>{[ tag.Hash().String() ]}</td></tr>
-            {{ endfor }}
-        </tbody>
-    </table>
+    {{ if props.Refs.DefaultBranch != "" && ctx.isAuthed() }}
+        {[ RepositoryTabRefsDefaultBranchSelector(ctx, props, "") ]}
+        <div class="pt"></div>
+    {{ endif }}
+
+    {{ if !(len(props.Refs.Branches) == 0 && len(props.Refs.Tags) == 0) }}
+        <table class="table full-width">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Commit hash</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ for _, branch := range props.Refs.Branches }}
+                    <tr><td>{[ branch.Name().Short() ]}</td><td>Branch</td><td>{[ branch.Hash().String() ]}</td></tr>
+                {{ endfor }}
+                {{ for _, tag := range props.Refs.Tags }}
+                    <tr><td>{[ tag.Name().Short() ]}</td><td>Tag</td><td>{[ tag.Hash().String() ]}</td></tr>
+                {{ endfor }}
+            </tbody>
+        </table>
+    {{ else }}
+        <p class="secondary">No refs available to display.</p>
+    {{ endif }}
+{{ endfunc }}
+
+{{ func RepositoryTabRefsDefaultBranchSelector(ctx *RenderContext, props *RepositoryTabProps, message string) }}
+    {{ if len(props.Refs.Branches) != 0 }}
+        <div id="defaultBranchSelectContainer">
+            <label for="defaultBranchSelect">Default branch</label>
+            <select id="defaultBranchSelect" name="defaultBranch"
+                    hx-post="{[ urls.Make(urls.RepositoryUpdateDefaultBranch, props.Repo.Slug) ]}"
+                    hx-trigger="change"
+                    hx-target="#defaultBranchSelectContainer">
+                {{ for _, branch := range props.Refs.Branches }}
+                    <option value="{[ branch.Name().String() ]}"
+                        {{ if branch.Name() == props.Refs.DefaultBranch }}
+                            selected
+                        {{ endif }}
+                    >{[ branch.Name().String() ]}</option>
+                {{ endfor }}
+            </select>
+            {{ if message != "" }}
+                <span id="defaultbranchmessage" class="message">{[ message ]}</span>
+                <script>
+                    setTimeout(function () {
+                        document.getElementById("defaultbranchmessage").outerHTML = "";
+                    }, 1000);
+                </script>
+            {{ endif }}
+        </div>
+    {{ endif }}
 {{ endfunc }}
 
 {{ func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) }}

@@ -1,8 +1,10 @@
 package core
 
 import (
+	"bytes"
 	"github.com/codemicro/abigit/abigit/config"
 	"github.com/codemicro/abigit/abigit/util"
+	"github.com/codemicro/htmlRenderer"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -195,12 +197,18 @@ attemptHeadSwitch:
 	}
 }
 
-func GetDefaultBranch(repo *git.Repository) (string, error) {
+func GetDefaultBranch(repo *git.Repository) (plumbing.ReferenceName, error) {
 	ref, err := repo.Reference("HEAD", false)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
-	return ref.Target().Short(), nil
+	return ref.Target(), nil
+}
+
+func SetDefaultBranch(repo *git.Repository, ref plumbing.ReferenceName) error {
+	return errors.WithStack(
+		repo.Storer.SetReference(plumbing.NewSymbolicReference("HEAD", ref)),
+	)
 }
 
 func IsRepositoryEmpty(repo *git.Repository) (bool, error) {
@@ -280,4 +288,19 @@ ok:
 	}
 
 	return content, nil
+}
+
+func GetRenderedReadmeContent(repo *git.Repository) (string, error) {
+	readmeContent, err := GetReadmeContent(repo)
+	if err != nil {
+		return "", err
+	}
+
+	buf := new(bytes.Buffer)
+	markdownProcessor := htmlRenderer.NewProcessor(htmlRenderer.WithHeaderLinks())
+	if err := markdownProcessor.Convert(readmeContent, buf); err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return buf.String(), nil
 }

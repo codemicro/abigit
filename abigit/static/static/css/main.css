@@ -162,4 +162,12 @@ table.table tr:hover {
   background-color: #f2d6d6;
 }
 
+.problem {
+  color: red;
+}
+
+.message {
+  font-style: italic;
+}
+
 /*# sourceMappingURL=main.css.map */
