@@ -173,22 +173,6 @@ func (e *Endpoints) displayRepository(ctx *fiber.Ctx) error {
 		return errors.WithStack(err)
 	}
 
-	//refIter, err := repo.References()
-	//if err != nil {
-	//	return errors.WithStack(err)
-	//}
-	//defer refIter.Close()
-
-	//var refs []*plumbing.Reference
-	//
-	//if err := refIter.ForEach(func(ref *plumbing.Reference) error {
-	//	fmt.Println(ref.Name(), ref.Type(), ref.Hash().String(), ref.Hash().IsZero())
-	//	refs = append(refs, ref)
-	//	return nil
-	//}); err != nil {
-	//	return errors.WithStack(err)
-	//}
-
 	isEmpty, err := core.IsRepositoryEmpty(repo)
 	if err != nil {
 		return errors.WithStack(err)
