@@ -1,7 +1,11 @@
-.PHONY: dev
+.PHONY: dev templates styles
 
-dev:
+templates:
+	go generate ./abigit/http/views
+
+styles:
 	sass abigit/static/static/css
-	go generate ./...
+
+dev: templates styles
 	mkdir -p run
 	cd run && go run ../abigit

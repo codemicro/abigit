@@ -2,7 +2,7 @@ $background-colour: #f6f4f2;
 $font-colour: #2b161c;
 $accent-colour: #df3062;
 $weak-accent-colour: #f2d6d6;
-$secondary: rgba(43, 22, 28, 0.5) ;
+$secondary: rgba(43, 22, 28, 0.5);
 
 $breakpoint-sm-max: 600px;
 $breakpoint-md-min: 600px;
@@ -173,5 +173,23 @@ div.tabs {
 
     position: relative;
     top: -$border-thick;
+  }
+}
+
+table > tbody > tr:hover {
+
+}
+
+table.table {
+  &.full-width {
+    width: 100%;
+  }
+
+  tr {
+    padding: 2px;
+
+    &:hover {
+      background-color: $weak-accent-colour;
+    }
   }
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/codemicro/abigit/abigit/core"
 	"github.com/codemicro/abigit/abigit/urls"
+	"github.com/go-git/go-git/v5/plumbing"
 	ntcWzvIICEQKo "html"
 	"path/filepath"
 	ntctyoxNCvLze "strings"
@@ -60,6 +61,11 @@ type RepositoryTabProps struct {
 		SSHUser        string
 		SSHHost        string
 		SSHStoragePath string
+	}
+
+	Refs struct {
+		Branches []*plumbing.Reference
+		Tags     []*plumbing.Reference
 	}
 }
 
@@ -134,7 +140,23 @@ func repositoryTabTree(ctx *RenderContext, props *RepositoryTabProps) string {
 }
 func repositoryTabRefs(ctx *RenderContext, props *RepositoryTabProps) string {
 	ntcRijqFUuoGg := new(ntctyoxNCvLze.Builder)
-	_, _ = ntcRijqFUuoGg.WriteString("\n    <p>TODO: refs here</p>\n")
+	_, _ = ntcRijqFUuoGg.WriteString("\n    <table class=\"table full-width\">\n        <thead>\n            <tr>\n                <th>Name</th>\n                <th>Type</th>\n                <th>Commit hash</th>\n            </tr>\n        </thead>\n        <tbody>\n            ")
+	for _, branch := range props.Refs.Branches {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                <tr><td>")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Name().Short()))
+		_, _ = ntcRijqFUuoGg.WriteString("</td><td>Branch</td><td>")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(branch.Hash().String()))
+		_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n            ")
+	}
+	_, _ = ntcRijqFUuoGg.WriteString("\n            ")
+	for _, tag := range props.Refs.Tags {
+		_, _ = ntcRijqFUuoGg.WriteString("\n                <tr><td>")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Name().Short()))
+		_, _ = ntcRijqFUuoGg.WriteString("</td><td>Tag</td><td>")
+		_, _ = ntcRijqFUuoGg.WriteString(ntcWzvIICEQKo.EscapeString(tag.Hash().String()))
+		_, _ = ntcRijqFUuoGg.WriteString("</td></tr>\n            ")
+	}
+	_, _ = ntcRijqFUuoGg.WriteString("\n        </tbody>\n    </table>\n")
 	return ntcRijqFUuoGg.String()
 }
 func repositoryTabClone(ctx *RenderContext, props *RepositoryTabProps) string {

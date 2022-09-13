@@ -10,6 +10,7 @@ import (
 	"github.com/codemicro/abigit/abigit/util"
 	"github.com/codemicro/htmlRenderer"
 	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
 	"github.com/pkg/errors"
@@ -232,47 +233,69 @@ func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 		props.CurrentTab = views.TabSelectorShowTree
 	case "refs":
 		props.CurrentTab = views.TabSelectorShowRefs
+
+		ri, err := repo.References()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if err := ri.ForEach(func(ref *plumbing.Reference) error {
+
+			if ref.Type() == plumbing.HashReference {
+				if ref.Name().IsBranch() {
+					props.Refs.Branches = append(props.Refs.Branches, ref)
+				}
+				if ref.Name().IsTag() {
+					props.Refs.Tags = append(props.Refs.Tags, ref)
+				}
+			}
+
+			return nil
+		}); err != nil {
+			return errors.WithStack(err)
+		}
+
 	case "clone":
 		props.CurrentTab = views.TabSelectorClone
+
+		props.Clone.SSHUser = config.SSH.User
+		props.Clone.SSHHost = config.SSH.Host
+		props.Clone.SSHStoragePath = config.Git.RepositoriesPath
 	case "commits":
 		props.CurrentTab = views.TabSelectorCommits
 	case "readme":
 		fallthrough
 	default:
 		props.CurrentTab = views.TabSelectorReadme
-	}
 
-	readmeContent, err := core.GetReadmeContent(repo)
-	if err != nil {
-		if errors.Is(err, core.ErrNoReadme) {
-			defaultBranch, err := core.GetDefaultBranch(repo)
-			if err != nil {
-				log.Warn().Msg("could not fetch default branch")
+		readmeContent, err := core.GetReadmeContent(repo)
+		if err != nil {
+			if errors.Is(err, core.ErrNoReadme) {
+				defaultBranch, err := core.GetDefaultBranch(repo)
+				if err != nil {
+					log.Warn().Msg("could not fetch default branch")
+				}
+
+				readmeContent = []byte("*No README file available*")
+
+				if defaultBranch != "" {
+					readmeContent = append(readmeContent,
+						[]byte(" - *make sure there's a file called README.md in the root of the repository on the `"+defaultBranch+"` branch*")...,
+					)
+				}
+			} else {
+				return errors.WithStack(err)
 			}
+		}
 
-			readmeContent = []byte("*No README file available*")
-
-			if defaultBranch != "" {
-				readmeContent = append(readmeContent,
-					[]byte(" - *make sure there's a file called README.md in the root of the repository on the `"+defaultBranch+"` branch*")...,
-				)
-			}
-		} else {
+		buf := new(bytes.Buffer)
+		markdownProcessor := htmlRenderer.NewProcessor(htmlRenderer.WithHeaderLinks())
+		if err := markdownProcessor.Convert(readmeContent, buf); err != nil {
 			return errors.WithStack(err)
 		}
+
+		props.Readme.Content = buf.String()
 	}
-
-	buf := new(bytes.Buffer)
-	markdownProcessor := htmlRenderer.NewProcessor(htmlRenderer.WithHeaderLinks())
-	if err := markdownProcessor.Convert(readmeContent, buf); err != nil {
-		return errors.WithStack(err)
-	}
-
-	props.Readme.Content = buf.String()
-
-	props.Clone.SSHUser = config.SSH.User
-	props.Clone.SSHHost = config.SSH.Host
-	props.Clone.SSHStoragePath = config.Git.RepositoriesPath
 
 	rctx, err := e.newRenderContext(ctx)
 	if err != nil {

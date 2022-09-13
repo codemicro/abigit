@@ -152,4 +152,14 @@ div.tabs .tab-content {
   top: -3px;
 }
 
+table.table.full-width {
+  width: 100%;
+}
+table.table tr {
+  padding: 2px;
+}
+table.table tr:hover {
+  background-color: #f2d6d6;
+}
+
 /*# sourceMappingURL=main.css.map */
