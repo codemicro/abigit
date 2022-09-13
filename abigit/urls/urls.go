@@ -24,6 +24,8 @@ const (
 	RepositoryByName      = Repositories + "/:slug"
 	ServeRepositoryByName = Repositories + "/:slug"
 
+	RepositorySizeOnDisk = Repositories + "/:slug/size"
+
 	RepositoryTabs       = RepositoryByName + "/tab"
 	RepositoryTabReadme  = RepositoryTabs + "/?tab=readme"
 	RepositoryTabTree    = RepositoryTabs + "/?tab=tree"

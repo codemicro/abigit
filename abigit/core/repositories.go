@@ -21,7 +21,14 @@ type RepoOnDisk struct {
 	Description string
 
 	Path string
-	Size int64
+}
+
+func (r *RepoOnDisk) Size() (int64, error) {
+	size, err := util.DirSize(r.Path)
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+	return size, nil
 }
 
 // ListRepositories returns the list of repositories in a given directory.
@@ -40,17 +47,11 @@ func ListRepositories() ([]*RepoOnDisk, error) {
 			continue
 		}
 
-		fi, err := entry.Info()
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
-
 		o = append(o, &RepoOnDisk{
 			Slug:        entry.Name(),
 			Description: "Lorem ipsum dolor sit amet.",
 
 			Path: filepath.Join(config.Git.RepositoriesPath, entry.Name()),
-			Size: fi.Size(),
 		})
 	}
 
@@ -81,18 +82,12 @@ func GetRepository(slug string) (*RepoOnDisk, error) {
 
 	fp := filepath.Join(config.Git.RepositoriesPath, slug)
 
-	size, err := util.DirSize(fp)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
 	// TODO: populate with meaningful information
 	return &RepoOnDisk{
 		Slug:        slug,
 		Description: "Lorem ipsum dolor sit amet.",
 
 		Path: fp,
-		Size: size,
 	}, nil
 }
 

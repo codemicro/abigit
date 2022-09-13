@@ -23,7 +23,8 @@ type ViewRepositoryProps struct {
     <div class="container">
         <h1>{[ props.Repo.Slug ]}</h1>
         <p class="secondary">{[ props.Repo.Description ]}</p>
-        <p>Size on disk: {[ formatFileSize(props.Repo.Size) ]}</p>
+        <p>Size on disk: <span hx-get="{[ urls.Make(urls.RepositorySizeOnDisk, props.Repo.Slug) ]}"
+                               hx-trigger="load">loading...</span></p>
 
         <div id="tabs" class="tabs"
              hx-get="{[ urls.Make(urls.RepositoryTabs, props.Repo.Slug) ]}"

@@ -14,6 +14,7 @@ import (
 	"github.com/codemicro/abigit/abigit/util"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
@@ -98,6 +99,10 @@ func (e *Endpoints) SetupApp() *fiber.App {
 
 	app.Get(urls.RepositoryByName, e.displayRepository)
 	app.Get(urls.RepositoryTabs, e.repositoryTabs)
+	app.Get(urls.RepositorySizeOnDisk, cache.New(cache.Config{
+		Expiration:   time.Minute * 10,
+		CacheControl: false,
+	}), e.repositorySizeOnDisk)
 
 	app.Use("/", static.NewHandler())
 

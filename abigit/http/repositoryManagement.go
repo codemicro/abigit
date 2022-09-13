@@ -208,6 +208,25 @@ func (e *Endpoints) displayRepository(ctx *fiber.Ctx) error {
 	)
 }
 
+func (e *Endpoints) repositorySizeOnDisk(ctx *fiber.Ctx) error {
+	repoSlug := ctx.Params("slug")
+	if repoSlug == "" || !core.ValidateSlug(repoSlug) {
+		return fiber.ErrBadRequest
+	}
+
+	repo, err := core.GetRepository(repoSlug)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	repoSize, err := repo.Size()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return ctx.SendString(views.FormatFileSize(repoSize))
+}
+
 func (e *Endpoints) repositoryTabs(ctx *fiber.Ctx) error {
 	repoSlug := ctx.Params("slug")
 	if repoSlug == "" || !core.ValidateSlug(repoSlug) {

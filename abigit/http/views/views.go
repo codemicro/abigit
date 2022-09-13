@@ -45,7 +45,7 @@ func SendPage(ctx *fiber.Ctx, content string) error {
 	return ctx.SendString(content)
 }
 
-func formatFileSize(s int64) string {
+func FormatFileSize(s int64) string {
 	unit := "B"
 
 	c := float64(s)
